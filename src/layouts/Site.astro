@@ -13,6 +13,7 @@ interface Props {
   reader?: boolean;
 }
 const { title, description = site.description, home = false, reader = false } = Astro.props;
+const currentYear = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -102,7 +103,7 @@ const { title, description = site.description, home = false, reader = false } = 
           <div class="footer-bottom">
             <>
               <span>
-                © The Tempest
+                © {currentYear} The Tempest
               </span>
               <span>Designed by Qaisar Sulaiman</span>
             </>
