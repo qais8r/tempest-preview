@@ -1,3 +1,240 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A student-run literary and arts magazine of Mayo Clinic Alix School of Medicine."><meta name="theme-color" content="#f4f0e6"><meta name="robots" content="noindex, nofollow"><link rel="icon" type="image/svg+xml" href="/tempest-web/favicon.svg"><title>Riley Chen · The Tempest</title><link rel="stylesheet" href="/tempest-web/_astro/Site.W43-5Nm-.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="site-main author-page"><a class="breadcrumb" href="/tempest-web/authors/">← All authors</a><section class="author-profile"><div class="author-portrait"><span>RC</span></div><div><span class="eyebrow accent">A voice in The Tempest</span><h1>Riley Chen</h1><div class="prose"><p>This is a sample author profile for the redesign preview. An author’s biography, portrait, and contributions will appear here.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A student-run literary and arts magazine of Mayo Clinic Alix School of Medicine."><meta name="theme-color" content="#f4f0e6"><meta name="robots" content="noindex, nofollow"><link rel="icon" type="image/svg+xml" href="/tempest-web/favicon.svg"><title>Riley Chen · The Tempest</title><style>@view-transition { navigation: auto; }</style><script>(function(){const transitionRoot = "/tempest-web/";
+
+  (() => {
+    const basePath = new URL(transitionRoot, location.origin).pathname;
+    const authorStorageKey = 'tempest-author-transition';
+    const workStorageKey = 'tempest-work-transition';
+    let clickedLink = null;
+
+    const localPath = (value) => {
+      const pathname = new URL(value, location.href).pathname;
+      if (!pathname.startsWith(basePath)) return null;
+      return `/${pathname.slice(basePath.length)}`;
+    };
+    const authorSlug = (path) => path?.match(/^\/authors\/([^/]+)\/$/)?.[1] || null;
+    const workSlug = (path) => path?.match(/^\/works\/([^/]+)\/$/)?.[1] || null;
+    const workCardAnchors = (slug) =>
+      [...document.querySelectorAll('a[data-work-transition]')].filter(
+        (element) =>
+          element.dataset.workTransition === slug &&
+          element.dataset.workTransitionContext === 'card',
+      );
+    const isAuthorIndex = (path) => path === '/authors/';
+    const isWork = (path) => /^\/works\/[^/]+\/$/.test(path || '');
+    const isIssueSurface = (path) =>
+      path === '/' || path === '/issues/' || /^\/issues\/\d{4}\/$/.test(path || '');
+    const isWorkCardSurface = (path) => isIssueSurface(path) || Boolean(authorSlug(path));
+    const authorRoute = (from, to) => {
+      const destinationAuthor = authorSlug(to);
+      if (destinationAuthor && (isAuthorIndex(from) || isWork(from))) {
+        return { slug: destinationAuthor, destinationContext: 'profile' };
+      }
+      const sourceAuthor = authorSlug(from);
+      if (sourceAuthor && (isAuthorIndex(to) || isWork(to))) {
+        return {
+          slug: sourceAuthor,
+          destinationContext: isAuthorIndex(to) ? 'card' : 'byline',
+        };
+      }
+      return null;
+    };
+    const workRoute = (from, to) => {
+      const destinationWork = workSlug(to);
+      if (destinationWork && isWorkCardSurface(from)) {
+        return { slug: destinationWork, destinationContext: 'detail' };
+      }
+      const sourceWork = workSlug(from);
+      if (sourceWork && isWorkCardSurface(to)) {
+        return { slug: sourceWork, destinationContext: 'card' };
+      }
+      return null;
+    };
+    const defaultSource = (path) => {
+      if (isAuthorIndex(path)) return { context: 'card', parts: ['portrait', 'name'] };
+      if (authorSlug(path)) return { context: 'profile', parts: ['portrait', 'name'] };
+      return { context: 'byline', parts: ['name'] };
+    };
+    const defaultWorkSource = (path) => ({
+      context: workSlug(path) ? 'detail' : 'card',
+      parts: ['title', 'author'],
+    });
+    const markAuthor = (slug, context, parts, until) => {
+      const marked = [];
+      document.querySelectorAll('[data-author-transition-author]').forEach((element) => {
+        if (
+          element.dataset.authorTransitionAuthor === slug &&
+          element.dataset.authorTransitionContext === context &&
+          parts.includes(element.dataset.authorTransitionPart)
+        ) {
+          element.style.viewTransitionName = `author-${element.dataset.authorTransitionPart}`;
+          marked.push(element);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+    const markWork = (slug, context, parts, until, scope = document) => {
+      const names = { title: 'work-title', author: 'work-author' };
+      const marked = [];
+      const markedParts = new Set();
+      scope.querySelectorAll('[data-work-transition-work]').forEach((element) => {
+        const part = element.dataset.workTransitionPart;
+        if (
+          element.dataset.workTransitionWork === slug &&
+          element.dataset.workTransitionContext === context &&
+          parts.includes(part) &&
+          names[part] &&
+          (scope !== document || !markedParts.has(part))
+        ) {
+          element.style.viewTransitionName = names[part];
+          marked.push(element);
+          markedParts.add(part);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+        if (!anchor) return;
+        clickedLink = {
+          to: localPath(anchor.href),
+          slug: anchor.dataset.authorTransition || null,
+          context: anchor.dataset.authorTransitionContext || null,
+          parts: (anchor.dataset.authorTransitionParts || '').split(' ').filter(Boolean),
+          workSlug: anchor.dataset.workTransition || null,
+          workContext: anchor.dataset.workTransitionContext || null,
+          workParts: (anchor.dataset.workTransitionParts || '').split(' ').filter(Boolean),
+          anchor,
+        };
+      },
+      { capture: true },
+    );
+
+    window.addEventListener('pageswap', (event) => {
+      if (!event.viewTransition) return;
+      const from = localPath(location.href);
+      const to = event.activation?.entry?.url
+        ? localPath(event.activation.entry.url)
+        : clickedLink?.to;
+      const work = workRoute(from, to);
+      const clickedWork =
+        work && clickedLink?.to === to && clickedLink?.workSlug === work.slug ? clickedLink : null;
+      if (work) {
+        const fallback = defaultWorkSource(from);
+        const context = clickedWork?.workContext || fallback.context;
+        const parts = clickedWork?.workParts.length ? clickedWork.workParts : fallback.parts;
+        const cardIndex = clickedWork?.anchor
+          ? workCardAnchors(work.slug).indexOf(clickedWork.anchor)
+          : -1;
+        const record = {
+          from,
+          to,
+          slug: work.slug,
+          parts,
+          destinationContext: work.destinationContext,
+          cardIndex: cardIndex >= 0 ? cardIndex : null,
+        };
+        try {
+          sessionStorage.setItem(workStorageKey, JSON.stringify(record));
+        } catch {}
+        markWork(work.slug, context, parts, event.viewTransition.finished, clickedWork?.anchor);
+        clickedLink = null;
+        return;
+      }
+      const route = authorRoute(from, to);
+      if (route) {
+        const fallback = defaultSource(from);
+        const clickedAuthor =
+          clickedLink?.to === to && clickedLink?.slug === route.slug ? clickedLink : null;
+        const context = clickedAuthor?.context || fallback.context;
+        const parts = clickedAuthor?.parts.length ? clickedAuthor.parts : fallback.parts;
+        const record = {
+          from,
+          to,
+          slug: route.slug,
+          parts,
+          destinationContext: route.destinationContext,
+        };
+        try {
+          sessionStorage.setItem(authorStorageKey, JSON.stringify(record));
+        } catch {}
+        markAuthor(route.slug, context, parts, event.viewTransition.finished);
+        clickedLink = null;
+        return;
+      }
+      if (!(isIssueSurface(from) && isIssueSurface(to))) {
+        event.viewTransition.skipTransition();
+      }
+      clickedLink = null;
+    });
+
+    window.addEventListener('pagereveal', (event) => {
+      if (!event.viewTransition) return;
+      const current = localPath(location.href);
+      let record = null;
+      try {
+        record = JSON.parse(sessionStorage.getItem(authorStorageKey));
+        sessionStorage.removeItem(authorStorageKey);
+      } catch {}
+      const activation = Reflect.get(window, 'navigation')?.activation;
+      const from =
+        record?.to === current
+          ? record.from
+          : activation?.from?.url
+            ? localPath(activation.from.url)
+            : null;
+      const route = authorRoute(from, current);
+      if (route) {
+        const parts = record?.slug === route.slug ? record.parts : defaultSource(from).parts;
+        const context =
+          record?.slug === route.slug ? record.destinationContext : route.destinationContext;
+        markAuthor(route.slug, context, parts, event.viewTransition.ready);
+        return;
+      }
+      let workRecord = null;
+      try {
+        workRecord = JSON.parse(sessionStorage.getItem(workStorageKey));
+        sessionStorage.removeItem(workStorageKey);
+      } catch {}
+      const work = workRoute(from, current);
+      if (work && workRecord?.to === current && workRecord?.slug === work.slug) {
+        const parts = workRecord.parts?.length ? workRecord.parts : defaultWorkSource(from).parts;
+        const destinationScope =
+          workRecord.destinationContext === 'card' && Number.isInteger(workRecord.cardIndex)
+            ? workCardAnchors(work.slug)[workRecord.cardIndex] || document
+            : document;
+        markWork(
+          work.slug,
+          workRecord.destinationContext || work.destinationContext,
+          parts,
+          event.viewTransition.ready,
+          destinationScope,
+        );
+        return;
+      }
+      if (from && !(isIssueSurface(from) && isIssueSurface(current))) {
+        event.viewTransition.skipTransition();
+      }
+    });
+  })();
+})();</script><link rel="stylesheet" href="/tempest-web/_astro/Site.DoRzx10H.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="site-main author-page"><a class="breadcrumb" href="/tempest-web/authors/" data-author-transition="riley-chen" data-author-transition-context="profile" data-author-transition-parts="portrait name">← All authors</a><section class="author-profile"><div class="author-portrait" data-author-transition-author="riley-chen" data-author-transition-context="profile" data-author-transition-part="portrait"><span>RC</span></div><div><span class="eyebrow accent">A voice in The Tempest</span><h1 data-author-transition-author="riley-chen" data-author-transition-context="profile" data-author-transition-part="name">Riley Chen</h1><div class="prose"><p>This is a sample author profile for the redesign preview. An author’s biography, portrait, and contributions will appear here.</p>
 <p>Visual art offers a way to pause and notice the details of everyday life. Replace this example with the contributor’s own words before publication.</p>
-</div></div></section><section class="author-works"><div class="section-heading"><h2>Selected contributions</h2></div><div class="work-grid"><article class="work-card"><a class="work-card-link has-artwork" href="/tempest-web/works/the-light-we-leave/"><div class="work-card-copy"><span class="eyebrow accent">Visual art</span><h3>The light we leave</h3><p class="byline">by Riley Chen</p><p class="work-excerpt">A space for the artist’s note: the idea behind a work, the process of making it, or the moment that inspired it.</p></div><img class="work-thumb" src="/tempest-web/media/images/sample-light.jpg" alt="" loading="lazy"></a></article></div></section></main><footer class="site-footer"><div class="footer-reflection"><div class="school-lockup"><img class="school-logo" draggable="false" src="/tempest-web/mayo-clinic-shields.svg" alt="Mayo Clinic shields" width="367" height="277"><div><strong>Mayo Clinic</strong><span>Alix School of Medicine</span></div></div><img class="footer-tree" draggable="false" src="/tempest-web/footer-botanical.svg" alt="" aria-hidden="true" width="240" height="250" loading="lazy"><p>Dolores Jean Lavins Center<br> for Humanities in Medicine</p></div><div class="footer-bottom"><span>© 2026 The Tempest</span><span>Designed by Qaisar Sulaiman</span></div></footer></body></html>
+</div></div></section><section class="author-works"><div class="section-heading"><h2>Selected contributions</h2></div><div class="work-grid"><article class="work-card"><a class="work-card-link has-artwork" href="/tempest-web/works/the-light-we-leave/" data-work-transition="the-light-we-leave" data-work-transition-context="card" data-work-transition-parts="title author" data-author-transition="riley-chen" data-author-transition-context="profile" data-author-transition-parts="name"><div class="work-card-copy"><span class="eyebrow accent">Visual art</span><h3 data-work-transition-work="the-light-we-leave" data-work-transition-context="card" data-work-transition-part="title">The light we leave</h3><p class="byline">by <span data-work-transition-work="the-light-we-leave" data-work-transition-context="card" data-work-transition-part="author">Riley Chen</span></p><p class="work-excerpt">A space for the artist’s note: the idea behind a work, the process of making it, or the moment that inspired it.</p></div><img class="work-thumb" src="/tempest-web/media/images/sample-light.jpg" alt="" loading="lazy"></a></article></div></section></main><footer class="site-footer"><div class="footer-reflection"><div class="school-lockup"><img class="school-logo" draggable="false" src="/tempest-web/mayo-clinic-shields.svg" alt="Mayo Clinic shields" width="367" height="277"><div><strong>Mayo Clinic</strong><span>Alix School of Medicine</span></div></div><img class="footer-tree" draggable="false" src="/tempest-web/footer-botanical.svg" alt="" aria-hidden="true" width="240" height="250" loading="lazy"><p>Dolores Jean Lavins Center<br> for Humanities in Medicine</p></div><div class="footer-bottom"><span>© 2026 The Tempest</span><span>Designed by Qaisar Sulaiman</span></div></footer></body></html>

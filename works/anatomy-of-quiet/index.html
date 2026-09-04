@@ -1,4 +1,241 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="You learn the names for the parts that break the slowest. But no one teaches you the weight of a pause, the space..."><meta name="theme-color" content="#f4f0e6"><meta name="robots" content="noindex, nofollow"><link rel="icon" type="image/svg+xml" href="/tempest-web/favicon.svg"><title>Anatomy of quiet · The Tempest</title><link rel="stylesheet" href="/tempest-web/_astro/Site.W43-5Nm-.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="work-page site-main"><a class="breadcrumb" href="/tempest-web/issues/2026/">← The 2026 issue</a><header class="work-header"><div class="eyebrow accent">Poetry <i>·</i> 2026</div><h1>Anatomy of quiet</h1><p class="work-author">by <a href="/tempest-web/authors/alex-morgan/">Alex Morgan</a></p></header><div class="work-reading-layout"><div class="work-body"><section class="audio-section" id="listen" aria-label="Audio recordings"><div class="audio-card"><div class="audio-card-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 12h4v9H3zm14 0h4v9h-4z"></path></svg><h2>Sample recording</h2></div><p>Audio from the original repository, included to demonstrate the player. This is not a reading of the sample poem.</p><audio controls preload="none" aria-label="Sample recording"><source src="/tempest-web/media/audio/sample-reading.mp3" type="audio/mpeg"><a href="/tempest-web/media/audio/sample-reading.mp3">Download recording</a></audio><a class="audio-download" href="/tempest-web/media/audio/sample-reading.mp3" download>Download MP3</a></div></section><div class="poem">You learn the names
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="You learn the names for the parts that break the slowest. But no one teaches you the weight of a pause, the space..."><meta name="theme-color" content="#f4f0e6"><meta name="robots" content="noindex, nofollow"><link rel="icon" type="image/svg+xml" href="/tempest-web/favicon.svg"><title>Anatomy of quiet · The Tempest</title><style>@view-transition { navigation: auto; }</style><script>(function(){const transitionRoot = "/tempest-web/";
+
+  (() => {
+    const basePath = new URL(transitionRoot, location.origin).pathname;
+    const authorStorageKey = 'tempest-author-transition';
+    const workStorageKey = 'tempest-work-transition';
+    let clickedLink = null;
+
+    const localPath = (value) => {
+      const pathname = new URL(value, location.href).pathname;
+      if (!pathname.startsWith(basePath)) return null;
+      return `/${pathname.slice(basePath.length)}`;
+    };
+    const authorSlug = (path) => path?.match(/^\/authors\/([^/]+)\/$/)?.[1] || null;
+    const workSlug = (path) => path?.match(/^\/works\/([^/]+)\/$/)?.[1] || null;
+    const workCardAnchors = (slug) =>
+      [...document.querySelectorAll('a[data-work-transition]')].filter(
+        (element) =>
+          element.dataset.workTransition === slug &&
+          element.dataset.workTransitionContext === 'card',
+      );
+    const isAuthorIndex = (path) => path === '/authors/';
+    const isWork = (path) => /^\/works\/[^/]+\/$/.test(path || '');
+    const isIssueSurface = (path) =>
+      path === '/' || path === '/issues/' || /^\/issues\/\d{4}\/$/.test(path || '');
+    const isWorkCardSurface = (path) => isIssueSurface(path) || Boolean(authorSlug(path));
+    const authorRoute = (from, to) => {
+      const destinationAuthor = authorSlug(to);
+      if (destinationAuthor && (isAuthorIndex(from) || isWork(from))) {
+        return { slug: destinationAuthor, destinationContext: 'profile' };
+      }
+      const sourceAuthor = authorSlug(from);
+      if (sourceAuthor && (isAuthorIndex(to) || isWork(to))) {
+        return {
+          slug: sourceAuthor,
+          destinationContext: isAuthorIndex(to) ? 'card' : 'byline',
+        };
+      }
+      return null;
+    };
+    const workRoute = (from, to) => {
+      const destinationWork = workSlug(to);
+      if (destinationWork && isWorkCardSurface(from)) {
+        return { slug: destinationWork, destinationContext: 'detail' };
+      }
+      const sourceWork = workSlug(from);
+      if (sourceWork && isWorkCardSurface(to)) {
+        return { slug: sourceWork, destinationContext: 'card' };
+      }
+      return null;
+    };
+    const defaultSource = (path) => {
+      if (isAuthorIndex(path)) return { context: 'card', parts: ['portrait', 'name'] };
+      if (authorSlug(path)) return { context: 'profile', parts: ['portrait', 'name'] };
+      return { context: 'byline', parts: ['name'] };
+    };
+    const defaultWorkSource = (path) => ({
+      context: workSlug(path) ? 'detail' : 'card',
+      parts: ['title', 'author'],
+    });
+    const markAuthor = (slug, context, parts, until) => {
+      const marked = [];
+      document.querySelectorAll('[data-author-transition-author]').forEach((element) => {
+        if (
+          element.dataset.authorTransitionAuthor === slug &&
+          element.dataset.authorTransitionContext === context &&
+          parts.includes(element.dataset.authorTransitionPart)
+        ) {
+          element.style.viewTransitionName = `author-${element.dataset.authorTransitionPart}`;
+          marked.push(element);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+    const markWork = (slug, context, parts, until, scope = document) => {
+      const names = { title: 'work-title', author: 'work-author' };
+      const marked = [];
+      const markedParts = new Set();
+      scope.querySelectorAll('[data-work-transition-work]').forEach((element) => {
+        const part = element.dataset.workTransitionPart;
+        if (
+          element.dataset.workTransitionWork === slug &&
+          element.dataset.workTransitionContext === context &&
+          parts.includes(part) &&
+          names[part] &&
+          (scope !== document || !markedParts.has(part))
+        ) {
+          element.style.viewTransitionName = names[part];
+          marked.push(element);
+          markedParts.add(part);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+        if (!anchor) return;
+        clickedLink = {
+          to: localPath(anchor.href),
+          slug: anchor.dataset.authorTransition || null,
+          context: anchor.dataset.authorTransitionContext || null,
+          parts: (anchor.dataset.authorTransitionParts || '').split(' ').filter(Boolean),
+          workSlug: anchor.dataset.workTransition || null,
+          workContext: anchor.dataset.workTransitionContext || null,
+          workParts: (anchor.dataset.workTransitionParts || '').split(' ').filter(Boolean),
+          anchor,
+        };
+      },
+      { capture: true },
+    );
+
+    window.addEventListener('pageswap', (event) => {
+      if (!event.viewTransition) return;
+      const from = localPath(location.href);
+      const to = event.activation?.entry?.url
+        ? localPath(event.activation.entry.url)
+        : clickedLink?.to;
+      const work = workRoute(from, to);
+      const clickedWork =
+        work && clickedLink?.to === to && clickedLink?.workSlug === work.slug ? clickedLink : null;
+      if (work) {
+        const fallback = defaultWorkSource(from);
+        const context = clickedWork?.workContext || fallback.context;
+        const parts = clickedWork?.workParts.length ? clickedWork.workParts : fallback.parts;
+        const cardIndex = clickedWork?.anchor
+          ? workCardAnchors(work.slug).indexOf(clickedWork.anchor)
+          : -1;
+        const record = {
+          from,
+          to,
+          slug: work.slug,
+          parts,
+          destinationContext: work.destinationContext,
+          cardIndex: cardIndex >= 0 ? cardIndex : null,
+        };
+        try {
+          sessionStorage.setItem(workStorageKey, JSON.stringify(record));
+        } catch {}
+        markWork(work.slug, context, parts, event.viewTransition.finished, clickedWork?.anchor);
+        clickedLink = null;
+        return;
+      }
+      const route = authorRoute(from, to);
+      if (route) {
+        const fallback = defaultSource(from);
+        const clickedAuthor =
+          clickedLink?.to === to && clickedLink?.slug === route.slug ? clickedLink : null;
+        const context = clickedAuthor?.context || fallback.context;
+        const parts = clickedAuthor?.parts.length ? clickedAuthor.parts : fallback.parts;
+        const record = {
+          from,
+          to,
+          slug: route.slug,
+          parts,
+          destinationContext: route.destinationContext,
+        };
+        try {
+          sessionStorage.setItem(authorStorageKey, JSON.stringify(record));
+        } catch {}
+        markAuthor(route.slug, context, parts, event.viewTransition.finished);
+        clickedLink = null;
+        return;
+      }
+      if (!(isIssueSurface(from) && isIssueSurface(to))) {
+        event.viewTransition.skipTransition();
+      }
+      clickedLink = null;
+    });
+
+    window.addEventListener('pagereveal', (event) => {
+      if (!event.viewTransition) return;
+      const current = localPath(location.href);
+      let record = null;
+      try {
+        record = JSON.parse(sessionStorage.getItem(authorStorageKey));
+        sessionStorage.removeItem(authorStorageKey);
+      } catch {}
+      const activation = Reflect.get(window, 'navigation')?.activation;
+      const from =
+        record?.to === current
+          ? record.from
+          : activation?.from?.url
+            ? localPath(activation.from.url)
+            : null;
+      const route = authorRoute(from, current);
+      if (route) {
+        const parts = record?.slug === route.slug ? record.parts : defaultSource(from).parts;
+        const context =
+          record?.slug === route.slug ? record.destinationContext : route.destinationContext;
+        markAuthor(route.slug, context, parts, event.viewTransition.ready);
+        return;
+      }
+      let workRecord = null;
+      try {
+        workRecord = JSON.parse(sessionStorage.getItem(workStorageKey));
+        sessionStorage.removeItem(workStorageKey);
+      } catch {}
+      const work = workRoute(from, current);
+      if (work && workRecord?.to === current && workRecord?.slug === work.slug) {
+        const parts = workRecord.parts?.length ? workRecord.parts : defaultWorkSource(from).parts;
+        const destinationScope =
+          workRecord.destinationContext === 'card' && Number.isInteger(workRecord.cardIndex)
+            ? workCardAnchors(work.slug)[workRecord.cardIndex] || document
+            : document;
+        markWork(
+          work.slug,
+          workRecord.destinationContext || work.destinationContext,
+          parts,
+          event.viewTransition.ready,
+          destinationScope,
+        );
+        return;
+      }
+      if (from && !(isIssueSurface(from) && isIssueSurface(current))) {
+        event.viewTransition.skipTransition();
+      }
+    });
+  })();
+})();</script><link rel="stylesheet" href="/tempest-web/_astro/Site.DoRzx10H.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="work-page site-main"><a class="breadcrumb" href="/tempest-web/issues/2026/">← The 2026 issue</a><header class="work-header"><div class="eyebrow accent">Poetry <i>·</i> 2026</div><h1 data-work-transition-work="anatomy-of-quiet" data-work-transition-context="detail" data-work-transition-part="title">Anatomy of quiet</h1><p class="work-author">by <a href="/tempest-web/authors/alex-morgan/" data-work-transition-work="anatomy-of-quiet" data-work-transition-context="detail" data-work-transition-part="author" data-author-transition="alex-morgan" data-author-transition-context="byline" data-author-transition-parts="name" data-author-transition-author="alex-morgan" data-author-transition-part="name">Alex Morgan</a></p></header><div class="work-reading-layout"><div class="work-body"><section class="audio-section" id="listen" aria-label="Audio recordings"><div class="audio-card"><div class="audio-card-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 12h4v9H3zm14 0h4v9h-4z"></path></svg><h2>Sample recording</h2></div><p>Audio from the original repository, included to demonstrate the player. This is not a reading of the sample poem.</p><audio controls preload="none" aria-label="Sample recording"><source src="/tempest-web/media/audio/sample-reading.mp3" type="audio/mpeg"><a href="/tempest-web/media/audio/sample-reading.mp3">Download recording</a></audio><a class="audio-download" href="/tempest-web/media/audio/sample-reading.mp3" download>Download MP3</a></div></section><div class="poem">You learn the names
 for the parts that break
 the slowest.
 
@@ -11,4 +248,4 @@ At the window, evening
 finds the empty chair.
 For a moment,
 we let the light stay.</div></div><aside class="work-margin" aria-label="About this work and its author"><section class="work-note" aria-labelledby="work-note-title"><h2 class="eyebrow" id="work-note-title">About the work</h2><div class="prose"><p>This is a demonstration companion page, not a contribution from the printed issue.</p>
-</div></section><section class="work-author-note" aria-labelledby="work-author-title"><h2 class="eyebrow" id="work-author-title">About the author</h2><a class="author-teaser" href="/tempest-web/authors/alex-morgan/"><span class="avatar-letter" aria-hidden="true">AM</span><div><h3>Alex Morgan</h3><span class="text-link">Meet the author <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span></div></a></section></aside></div></main><footer class="site-footer"><div class="footer-reflection"><div class="school-lockup"><img class="school-logo" draggable="false" src="/tempest-web/mayo-clinic-shields.svg" alt="Mayo Clinic shields" width="367" height="277"><div><strong>Mayo Clinic</strong><span>Alix School of Medicine</span></div></div><img class="footer-tree" draggable="false" src="/tempest-web/footer-botanical.svg" alt="" aria-hidden="true" width="240" height="250" loading="lazy"><p>Dolores Jean Lavins Center<br> for Humanities in Medicine</p></div><div class="footer-bottom"><span>© 2026 The Tempest</span><span>Designed by Qaisar Sulaiman</span></div></footer></body></html>
+</div></section><section class="work-author-note" aria-labelledby="work-author-title"><h2 class="eyebrow" id="work-author-title">About the author</h2><a class="author-teaser" href="/tempest-web/authors/alex-morgan/" data-author-transition="alex-morgan" data-author-transition-context="teaser" data-author-transition-parts="portrait name"><span class="avatar-letter" aria-hidden="true" data-author-transition-author="alex-morgan" data-author-transition-context="teaser" data-author-transition-part="portrait">AM</span><div><h3 data-author-transition-author="alex-morgan" data-author-transition-context="teaser" data-author-transition-part="name">Alex Morgan</h3><span class="text-link">Meet the author <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"></path></svg></span></div></a></section></aside></div></main><footer class="site-footer"><div class="footer-reflection"><div class="school-lockup"><img class="school-logo" draggable="false" src="/tempest-web/mayo-clinic-shields.svg" alt="Mayo Clinic shields" width="367" height="277"><div><strong>Mayo Clinic</strong><span>Alix School of Medicine</span></div></div><img class="footer-tree" draggable="false" src="/tempest-web/footer-botanical.svg" alt="" aria-hidden="true" width="240" height="250" loading="lazy"><p>Dolores Jean Lavins Center<br> for Humanities in Medicine</p></div><div class="footer-bottom"><span>© 2026 The Tempest</span><span>Designed by Qaisar Sulaiman</span></div></footer></body></html>
