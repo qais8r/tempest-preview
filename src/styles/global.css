@@ -494,8 +494,14 @@ button,
     display: block;
     align-self: end;
   }
-  .school-lockup {
+  .footer-reflection > p {
+    grid-column: 3;
     justify-self: end;
+    text-align: right;
+  }
+  .school-lockup {
+    grid-column: 1;
+    justify-self: start;
   }
 }
 .school-lockup {
