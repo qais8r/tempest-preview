@@ -4,7 +4,7 @@
 
 - Public deployments must use the private `tempest-content` repository's `Publish website` workflow. It runs the production build and includes only records marked `published`.
 - Preview builds are for local testing only. Never publish preview output or `dist/` by hand.
-- Deploy the verified and pushed `main` commit. Do not change editorial publication statuses unless the user asks.
+- Before triggering the workflow, set its `SOURCE_REF` variable to the verified and pushed `main` commit. Do not change editorial publication statuses unless the user asks.
 
 ## Repository boundaries
 
