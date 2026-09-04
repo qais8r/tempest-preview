@@ -21,6 +21,12 @@ const { root: transitionRoot } = Astro.props;
     };
     const authorSlug = (path) => path?.match(/^\/authors\/([^/]+)\/$/)?.[1] || null;
     const workSlug = (path) => path?.match(/^\/works\/([^/]+)\/$/)?.[1] || null;
+    const workCardAnchors = (slug) =>
+      [...document.querySelectorAll('a[data-work-transition]')].filter(
+        (element) =>
+          element.dataset.workTransition === slug &&
+          element.dataset.workTransitionContext === 'card',
+      );
     const isAuthorIndex = (path) => path === '/authors/';
     const isWork = (path) => /^\/works\/[^/]+\/$/.test(path || '');
     const isIssueSurface = (path) =>
@@ -82,19 +88,22 @@ const { root: transitionRoot } = Astro.props;
           });
         });
     };
-    const markWork = (slug, context, parts, until) => {
+    const markWork = (slug, context, parts, until, scope = document) => {
       const names = { title: 'work-title', author: 'work-author' };
       const marked = [];
-      document.querySelectorAll('[data-work-transition-work]').forEach((element) => {
+      const markedParts = new Set();
+      scope.querySelectorAll('[data-work-transition-work]').forEach((element) => {
         const part = element.dataset.workTransitionPart;
         if (
           element.dataset.workTransitionWork === slug &&
           element.dataset.workTransitionContext === context &&
           parts.includes(part) &&
-          names[part]
+          names[part] &&
+          (scope !== document || !markedParts.has(part))
         ) {
           element.style.viewTransitionName = names[part];
           marked.push(element);
+          markedParts.add(part);
         }
       });
       document.documentElement.style.viewTransitionName = 'none';
@@ -121,6 +130,7 @@ const { root: transitionRoot } = Astro.props;
           workSlug: anchor.dataset.workTransition || null,
           workContext: anchor.dataset.workTransitionContext || null,
           workParts: (anchor.dataset.workTransitionParts || '').split(' ').filter(Boolean),
+          anchor,
         };
       },
       { capture: true },
@@ -135,25 +145,25 @@ const { root: transitionRoot } = Astro.props;
       const work = workRoute(from, to);
       const clickedWork =
         work && clickedLink?.to === to && clickedLink?.workSlug === work.slug ? clickedLink : null;
-      const isWorkCardClick = Boolean(clickedWork && workSlug(to));
-      const isWorkTraverse = Boolean(
-        work && workSlug(from) && isWorkCardSurface(to) && clickedLink?.to !== to,
-      );
-      if (work && (isWorkCardClick || isWorkTraverse)) {
+      if (work) {
         const fallback = defaultWorkSource(from);
         const context = clickedWork?.workContext || fallback.context;
         const parts = clickedWork?.workParts.length ? clickedWork.workParts : fallback.parts;
+        const cardIndex = clickedWork?.anchor
+          ? workCardAnchors(work.slug).indexOf(clickedWork.anchor)
+          : -1;
         const record = {
           from,
           to,
           slug: work.slug,
           parts,
           destinationContext: work.destinationContext,
+          cardIndex: cardIndex >= 0 ? cardIndex : null,
         };
         try {
           sessionStorage.setItem(workStorageKey, JSON.stringify(record));
         } catch {}
-        markWork(work.slug, context, parts, event.viewTransition.finished);
+        markWork(work.slug, context, parts, event.viewTransition.finished, clickedWork?.anchor);
         clickedLink = null;
         return;
       }
@@ -215,11 +225,16 @@ const { root: transitionRoot } = Astro.props;
       const work = workRoute(from, current);
       if (work && workRecord?.to === current && workRecord?.slug === work.slug) {
         const parts = workRecord.parts?.length ? workRecord.parts : defaultWorkSource(from).parts;
+        const destinationScope =
+          workRecord.destinationContext === 'card' && Number.isInteger(workRecord.cardIndex)
+            ? workCardAnchors(work.slug)[workRecord.cardIndex] || document
+            : document;
         markWork(
           work.slug,
           workRecord.destinationContext || work.destinationContext,
           parts,
           event.viewTransition.ready,
+          destinationScope,
         );
         return;
       }
