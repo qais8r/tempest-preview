@@ -599,8 +599,12 @@ button,
 .work-header h1 {
   max-width: 70rem;
   margin: 1.7rem auto 0;
-  font: 400 clamp(5rem, 10vw, 10rem)/0.75 var(--serif);
+  font-family: Georgia;
+  font-weight: lighter;
+  font-size: clamp(5rem, 10vw, 7rem);
   letter-spacing: -0.05em;
+  text-wrap: balance;
+  line-height: 1;
 }
 .work-author {
   font: italic 1.65rem/1 var(--serif);
