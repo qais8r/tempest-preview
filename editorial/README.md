@@ -36,4 +36,4 @@ Sign in to Pages CMS with GitHub and install its GitHub App for **this repositor
 
 The maintainer sets repository variables `SOURCE_REPO`, `SOURCE_REF`, `PUBLIC_SITE_REPO`, `SITE_URL`, and `BASE_PATH`. A repository-specific write deploy key is stored as the `PAGES_DEPLOY_KEY` Actions secret. It can update the public site's files only. No personal GitHub token is stored.
 
-The current destination is a separate review website. Moving to the official site requires the maintainer to change the destination and authorize a deploy key there. Code changes are reviewed in the public Astro repository.
+Website code is maintained in [qais8r/tempest](https://github.com/qais8r/tempest). The public website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/). The maintainer pins `SOURCE_REPO` to `qais8r/tempest` and `SOURCE_REF` to a verified source commit. Changing hosting later requires a new destination and a deploy key for that repository.

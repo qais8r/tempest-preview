@@ -1,4 +1,4 @@
-name: Check Astro redesign
+name: Check website
 on:
   push:
     branches: [main, 'codex/**']
@@ -21,7 +21,7 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          BASE_PATH: /mcasom-the-tempest
+          BASE_PATH: /tempest-preview
       - run: npm run check
       - name: Check production excludes test drafts
         run: |

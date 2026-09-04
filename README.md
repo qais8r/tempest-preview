@@ -59,7 +59,7 @@ Static output is in `dist/`. No application server or database is required. Set 
 SITE_URL=https://qais8r.github.io BASE_PATH=/tempest-preview npm run build
 ```
 
-The current official site still uses the `main` branch with legacy GitHub Pages. Do not merge and assume Jekyll will build Astro. Before the official cutover, choose a Pages deployment branch or Actions deployment, update the editorial destination, then change the official Pages settings. The review site is separate.
+The maintained source is [qais8r/tempest](https://github.com/qais8r/tempest), on `main`. The website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/), served from the `gh-pages` branch of `qais8r/tempest-preview`. Private content stays in `qais8r/tempest-editorial`. These repositories are independent of Brett's original site. Keep the editorial `SOURCE_REF` pinned to a verified source commit when upgrading the code.
 
 PDFs, images, and MP3s are committed directly to GitHub. A 25 MiB per-file build limit keeps the workflow compatible with browser uploads and a possible later Cloudflare Pages move. Larger future files need optimization or a separate media store. The original `/issues/2026/tempest-2026.pdf` path remains available, and the old flipbook and demo-work URLs redirect.
 
