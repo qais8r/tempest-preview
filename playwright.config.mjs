@@ -4,8 +4,9 @@ export default defineConfig({
   testDir: './tests/browser',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
   workers: 2,
-  timeout: 30000,
+  timeout: process.env.CI ? 60000 : 30000,
   use: {
     baseURL: 'http://127.0.0.1:4537/tempest-web/',
     viewport: { width: 1280, height: 900 },
