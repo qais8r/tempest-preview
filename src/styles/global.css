@@ -398,7 +398,8 @@ button,
   justify-content: space-between;
   align-items: flex-end;
   padding-bottom: 1.6rem;
-  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 2.2rem;
 }
 .section-heading :is(h1, h2) {
   font: 400 clamp(3.6rem, 5vw, 5.7rem)/0.85 var(--serif);
