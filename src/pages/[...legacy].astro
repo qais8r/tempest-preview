@@ -1,5 +1,6 @@
 ---
 import { url, issues } from '../lib/content';
+import ViewTransitions from '../components/ViewTransitions.astro';
 export function getStaticPaths() {
   const target = issues.some((i) => i.year === '2026') ? '/issues/2026/' : '/issues/';
   const paths = [
@@ -27,6 +28,6 @@ const destination = url(Astro.props.target);
     ><meta charset="utf-8" /><meta http-equiv="refresh" content={`0;url=${destination}`} /><meta
       name="robots"
       content="noindex"
-    /><title>The Tempest · Page moved</title></head
+    /><title>The Tempest · Page moved</title><ViewTransitions root={url('/')} /></head
   ><body><p>This page has moved. <a href={destination}>Continue to The Tempest.</a></p></body>
 </html>

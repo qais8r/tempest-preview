@@ -3,9 +3,8 @@ import { authorFor, url, type Work } from '../lib/content';
 import Icon from './Icon.astro';
 interface Props {
   work: Work;
-  authorTransition?: boolean;
 }
-const { work, authorTransition = false } = Astro.props;
+const { work } = Astro.props;
 const author = authorFor(work);
 const artwork = work.artworks[0];
 ---
@@ -17,9 +16,6 @@ const artwork = work.artworks[0];
     data-work-transition={work.slug}
     data-work-transition-context="card"
     data-work-transition-parts="title author"
-    data-author-transition={authorTransition ? author.slug : undefined}
-    data-author-transition-context={authorTransition ? 'profile' : undefined}
-    data-author-transition-parts={authorTransition ? 'name' : undefined}
   >
     <div class="work-card-copy">
       <span class="eyebrow accent">{work.category}</span><h3

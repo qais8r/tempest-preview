@@ -14,12 +14,17 @@ npm run dev
 Open `http://localhost:4321`. Development includes sample works saved as drafts so the full design can be reviewed. Their text and names are placeholders; they are not extracted from the magazine. The sample recording comes from the previous demo site and is labeled accordingly.
 
 ```sh
-npm test                  # Publication rules and content relationships
+npx playwright install chromium webkit # Once, for browser tests
+npm test                  # Content rules and browser navigation regressions
+npm run test:unit         # Fast content and text tests
+npm run test:browser      # Built-site tests in Chromium and WebKit
 npm run build             # Published content only; excludes drafts
 npm run check             # Astro and TypeScript diagnostics
 npm run build:preview     # Includes drafts; keep private for real content
 npm run preview           # Serve the most recent build locally
 ```
+
+Browser tests build the public `content/` fixtures in preview mode with `/tempest-web` as the base path, then serve them on port 4537. They cover shared elements, Back and Forward, reloads, mobile layouts, interrupted transitions, storage failures, missing navigation APIs, and reduced motion. Playwright stops its server after the run.
 
 The prepare script validates JSON, copies only media referenced by included records, generates PDF covers, and checks reader page numbers. Run it again or restart the dev server after editing content. Cover images are cached by PDF hash. Generated files are ignored by Git.
 
@@ -64,6 +69,8 @@ The maintained source is [qais8r/tempest-web](https://github.com/qais8r/tempest-
 PDFs, images, and MP3s are committed directly to GitHub. A 25 MiB per-file build limit keeps the workflow compatible with browser uploads and a possible later Cloudflare Pages move. Larger future files need optimization or a separate media store. The original `/issues/2026/tempest-2026.pdf` path remains available, and the old flipbook and demo-work URLs redirect.
 
 ## Implementation
+
+Every HTML page opts into native cross-document View Transitions. Most navigation uses a page crossfade; work cards, author links, and issue covers share elements between pages. A single navigation record keeps the outgoing and incoming elements consistent. History records preserve the selected card or author teaser for Back and Forward. Reduced motion disables transitions, and blocked storage falls back to the page crossfade. External destinations and PDF files follow the browser's normal navigation behavior.
 
 Astro generates the pages. PDF.js renders and supplies selectable text for the PDF reader; StPageFlip handles desktop page turns. The reader loads nearby pages, releases distant canvases, supports keyboard navigation, contents links, zoom, downloads, and reduced motion. It switches to scrolling below 760px. Typography is self-hosted Cormorant Garamond and Manrope.
 

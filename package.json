@@ -12,7 +12,9 @@
     "build:preview": "node scripts/prepare.mjs --preview && astro build",
     "preview": "astro preview --host 127.0.0.1",
     "check": "astro check",
-    "test": "node --test tests/*.test.mjs"
+    "test": "npm run test:unit && npm run test:browser",
+    "test:browser": "playwright test",
+    "test:unit": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "5.3.0",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.62.1",
     "@types/sanitize-html": "^2.16.0",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",

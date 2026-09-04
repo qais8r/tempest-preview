@@ -1,5 +1,6 @@
 ---
-import { site } from '../../lib/content';
+import { site, url } from '../../lib/content';
+import ViewTransitions from '../../components/ViewTransitions.astro';
 const cmsUrl = `https://app.pagescms.org/${site.editorialRepo}/main`;
 ---
 
@@ -11,6 +12,7 @@ const cmsUrl = `https://app.pagescms.org/${site.editorialRepo}/main`;
     <meta name="robots" content="noindex, nofollow" />
     <meta http-equiv="refresh" content={`0;url=${cmsUrl}`} />
     <title>Opening Pages CMS</title>
+    <ViewTransitions root={url('/')} />
   </head>
   <body><p><a href={cmsUrl}>Continue to Pages CMS</a></p></body>
 </html>

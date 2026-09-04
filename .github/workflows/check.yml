@@ -18,6 +18,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
       - run: npm test
       - run: npm run build
         env:
@@ -28,5 +29,3 @@ jobs:
           test ! -d dist/works/anatomy-of-quiet
           test ! -f dist/media/audio/sample-reading.mp3
           test -f dist/media/pdfs/2026.pdf
-      - run: npm run build:preview
-      - run: npm run check

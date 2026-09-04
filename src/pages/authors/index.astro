@@ -8,7 +8,7 @@ const alphabet = new Intl.Collator('en', { sensitivity: 'base', numeric: true })
 const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.trim()));
 ---
 
-<Site title="The authors" authorTransitions>
+<Site title="The authors">
   <main id="main" class="site-main">
     <section class="author-directory" aria-labelledby="authors-title">
       <div class="section-heading">

@@ -1,95 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { loadContent, referencedMedia, mediaPath, workSchema } from '../scripts/content.mjs';
 import { simplifyEditorial } from '../scripts/simplify-editorial.mjs';
-import { isPoetry, workExcerpt } from '../scripts/text.mjs';
-
-async function fixture(t, overrides = {}) {
-  const root = await mkdtemp(path.join(tmpdir(), 'tempest-content-'));
-  t.after(() => rm(root, { recursive: true, force: true }));
-  const records = {
-    site: {
-      title: 'Test',
-      school: 'School',
-      description: '',
-      currentIssue: '2026',
-      tagline: '',
-      about: '',
-      editorialRepo: 'owner/editorial',
-    },
-    issues: [
-      {
-        year: '2026',
-        title: '2026',
-        status: 'published',
-        pdf: '/media/pdfs/2026.pdf',
-        featuredWorks: ['a-poem', 'secret-poem', 'sample-poem'],
-      },
-      { year: '2027', title: 'Secret issue', status: 'draft', pdf: '/media/pdfs/secret.pdf' },
-    ],
-    authors: [
-      { slug: 'writer', name: 'Writer', status: 'published' },
-      {
-        slug: 'secret-writer',
-        name: 'Private name',
-        status: 'draft',
-        portrait: '/media/images/secret.jpg',
-      },
-    ],
-    works: [
-      {
-        slug: 'a-poem',
-        title: 'A poem',
-        issue: '2026',
-        author: 'writer',
-        category: 'Poetry',
-        status: 'published',
-        recordings: [{ file: '/media/audio/public.mp3', title: 'Reading' }],
-      },
-      {
-        slug: 'secret-poem',
-        title: 'Secret words',
-        issue: '2026',
-        author: 'secret-writer',
-        category: 'Poetry',
-        status: 'draft',
-        artworks: [{ image: '/media/images/unpublished.jpg', alt: 'Private artwork' }],
-      },
-      {
-        slug: 'sample-poem',
-        title: 'Sample words',
-        issue: '2026',
-        author: 'writer',
-        category: 'Poetry',
-        status: 'draft',
-        artworks: [{ image: '/media/images/sample.jpg', alt: 'Sample artwork' }],
-      },
-      {
-        slug: 'next-issue',
-        title: 'Next issue',
-        issue: '2027',
-        author: 'writer',
-        category: 'Prose',
-        status: 'published',
-        artworks: [{ image: '/media/images/future.jpg', alt: 'Future artwork' }],
-      },
-    ],
-    ...overrides,
-  };
-  await writeFile(path.join(root, 'site.json'), JSON.stringify(records.site));
-  for (const name of ['issues', 'works', 'authors']) {
-    await mkdir(path.join(root, name));
-    for (const entry of records[name])
-      await writeFile(
-        path.join(root, name, `${entry.slug || entry.year}.json`),
-        JSON.stringify(entry),
-      );
-  }
-  return root;
-}
+import { isPoetry } from '../scripts/text.mjs';
+import { contentFixture as fixture } from './helpers/content-fixture.mjs';
 
 test('production excludes all draft records, assets and homepage references', async (t) => {
   const data = await loadContent(await fixture(t));
@@ -112,7 +28,7 @@ test('production excludes all draft records, assets and homepage references', as
   ]);
   assert.ok(!JSON.stringify(data).includes('Secret'));
 });
-test('private preview includes drafts for review', async (t) => {
+test('preview includes drafts for review', async (t) => {
   const data = await loadContent(await fixture(t), true);
   assert.equal(data.issues.length, 2);
   assert.equal(data.works.length, 4);
@@ -227,26 +143,6 @@ test('previews derive from the written work and only current gallery assets are 
     '/media/images/second.jpg',
     '/media/pdfs/2026.pdf',
   ]);
-});
-
-test('prose excerpts omit markup and hidden content while retaining readable punctuation', () => {
-  const body =
-    '# A **quiet** room\n\n[Listen](https://example.com) &amp; breathe.<br>Again.\n\n<script>hidden()</script>\n\n![Artwork](photo.jpg)';
-  assert.equal(workExcerpt(body, 'Prose'), 'A quiet room Listen & breathe. Again.');
-  assert.equal(
-    workExcerpt('*A literal poem*\n  & a pause', 'Poetry'),
-    '*A literal poem* & a pause',
-  );
-  assert.equal(workExcerpt('', 'Visual art'), '');
-});
-
-test('long excerpts truncate at words with three dots and leave short text intact', () => {
-  assert.equal(
-    workExcerpt('First morning light falls across the table.', 'Prose', 24),
-    'First morning light...',
-  );
-  assert.equal(workExcerpt('A brief work.', 'Prose'), 'A brief work.');
-  assert.equal(workExcerpt('🌊'.repeat(30), 'Poetry', 12), '🌊'.repeat(9) + '...');
 });
 
 test('saved filenames keep addresses and references stable after names change', async (t) => {

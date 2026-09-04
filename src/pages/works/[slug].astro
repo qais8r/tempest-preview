@@ -18,7 +18,7 @@ const { work } = Astro.props;
 const author = authorFor(work);
 ---
 
-<Site title={work.title} description={work.excerpt} authorTransitions
+<Site title={work.title} description={work.excerpt}
   ><main id="main" class="work-page site-main">
     <a class="breadcrumb" href={issueUrl(work.issue)}>← The {work.issue} issue</a>
     <header class="work-header">
