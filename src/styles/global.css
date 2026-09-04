@@ -534,6 +534,7 @@ button,
 }
 .footer-bottom span:last-child {
   text-align: right;
+  letter-spacing: 0.32em;
 }
 .page-intro {
   padding: 6rem 0 5rem;
