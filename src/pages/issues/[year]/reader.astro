@@ -11,7 +11,7 @@ const linkedWorks = worksFor(issue).filter((w) => w.pdfPage);
 const categories = [...new Set(linkedWorks.map((w) => w.category))];
 ---
 
-<Site title={`${issue.year} reader`} reader>
+<Site title={`${issue.year} Issue Reader`} reader>
   <header class="reader-header">
     <a class="reader-wordmark" href={url('/')}>THE TEMPEST</a><div
       class="reader-page-status"

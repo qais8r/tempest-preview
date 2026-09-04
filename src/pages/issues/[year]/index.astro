@@ -10,7 +10,7 @@ const { issue } = Astro.props;
 const list = worksFor(issue);
 ---
 
-<Site title={`${issue.year} issue`}
+<Site title={`${issue.year} Issue`}
   ><main id="main" class="site-main">
     <a class="breadcrumb" href={url('/issues/')}>← All issues</a><IssueFeature
       issue={issue}
