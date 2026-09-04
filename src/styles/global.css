@@ -471,6 +471,7 @@ button,
 }
 .footer-reflection > p {
   font: 400 1.5rem/1.13 var(--serif);
+  font-style: italic;
   max-width: 36rem;
   text-wrap: balance;
 }
