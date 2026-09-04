@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="240" height="250" viewBox="0 0 240 250" fill="none">
   <defs>
     <g id="pod" stroke="#36382f" stroke-width=".65">
-      <path d="M0 1C-4-2-4-7-1-8C2-8 3-3 0 1Z" fill="#36382f" fill-opacity=".22"/>
-      <path d="M0 0-1-6M-2-8-3-10M0-8 1-10"/>
+      <path d="M0 0C-4-2-4-7-1-8C2-8 3-3 0 0Z" fill="#36382f" fill-opacity=".22"/>
+      <path d="M0 0C0-3-1-6-1-8"/>
     </g>
     <g id="sprig" stroke="#36382f" stroke-width=".65" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M0 14C0 6 1-2 0-13M0 7C-3 4-6 0-7-5M0 1C4-1 7-6 8-10M0-5-5-13M0-9 4-17"/>
+      <path d="M0 14C0 6 1-2 0-13M0 7C-3 4-6 0-7-5M0 1C4-1 7-6 8-10M0-5-5-13M0-9 4-17M-3 4-4 6M0 1 3-2"/>
       <use href="#pod" transform="translate(0 -13) rotate(6)"/>
       <use href="#pod" transform="translate(-7 -5) rotate(-40) scale(.85)"/>
       <use href="#pod" transform="translate(8 -10) rotate(36)"/>
