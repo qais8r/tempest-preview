@@ -2,7 +2,8 @@
 
   (() => {
     const basePath = new URL(transitionRoot, location.origin).pathname;
-    const storageKey = 'tempest-author-transition';
+    const authorStorageKey = 'tempest-author-transition';
+    const workStorageKey = 'tempest-work-transition';
     let clickedLink = null;
 
     const localPath = (value) => {
@@ -11,10 +12,12 @@
       return `/${pathname.slice(basePath.length)}`;
     };
     const authorSlug = (path) => path?.match(/^\/authors\/([^/]+)\/$/)?.[1] || null;
+    const workSlug = (path) => path?.match(/^\/works\/([^/]+)\/$/)?.[1] || null;
     const isAuthorIndex = (path) => path === '/authors/';
     const isWork = (path) => /^\/works\/[^/]+\/$/.test(path || '');
     const isIssueSurface = (path) =>
       path === '/' || path === '/issues/' || /^\/issues\/\d{4}\/$/.test(path || '');
+    const isWorkCardSurface = (path) => isIssueSurface(path) || Boolean(authorSlug(path));
     const authorRoute = (from, to) => {
       const destinationAuthor = authorSlug(to);
       if (destinationAuthor && (isAuthorIndex(from) || isWork(from))) {
@@ -29,11 +32,26 @@
       }
       return null;
     };
+    const workRoute = (from, to) => {
+      const destinationWork = workSlug(to);
+      if (destinationWork && isWorkCardSurface(from)) {
+        return { slug: destinationWork, destinationContext: 'detail' };
+      }
+      const sourceWork = workSlug(from);
+      if (sourceWork && isWorkCardSurface(to)) {
+        return { slug: sourceWork, destinationContext: 'card' };
+      }
+      return null;
+    };
     const defaultSource = (path) => {
       if (isAuthorIndex(path)) return { context: 'card', parts: ['portrait', 'name'] };
       if (authorSlug(path)) return { context: 'profile', parts: ['portrait', 'name'] };
       return { context: 'byline', parts: ['name'] };
     };
+    const defaultWorkSource = (path) => ({
+      context: workSlug(path) ? 'detail' : 'card',
+      parts: ['title', 'author'],
+    });
     const markAuthor = (slug, context, parts, until) => {
       const marked = [];
       document.querySelectorAll('[data-author-transition-author]').forEach((element) => {
@@ -43,6 +61,31 @@
           parts.includes(element.dataset.authorTransitionPart)
         ) {
           element.style.viewTransitionName = `author-${element.dataset.authorTransitionPart}`;
+          marked.push(element);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+    const markWork = (slug, context, parts, until) => {
+      const names = { title: 'work-title', author: 'work-author' };
+      const marked = [];
+      document.querySelectorAll('[data-work-transition-work]').forEach((element) => {
+        const part = element.dataset.workTransitionPart;
+        if (
+          element.dataset.workTransitionWork === slug &&
+          element.dataset.workTransitionContext === context &&
+          parts.includes(part) &&
+          names[part]
+        ) {
+          element.style.viewTransitionName = names[part];
           marked.push(element);
         }
       });
@@ -67,6 +110,9 @@
           slug: anchor.dataset.authorTransition || null,
           context: anchor.dataset.authorTransitionContext || null,
           parts: (anchor.dataset.authorTransitionParts || '').split(' ').filter(Boolean),
+          workSlug: anchor.dataset.workTransition || null,
+          workContext: anchor.dataset.workTransitionContext || null,
+          workParts: (anchor.dataset.workTransitionParts || '').split(' ').filter(Boolean),
         };
       },
       { capture: true },
@@ -78,10 +124,36 @@
       const to = event.activation?.entry?.url
         ? localPath(event.activation.entry.url)
         : clickedLink?.to;
+      const work = workRoute(from, to);
+      const clickedWork =
+        work && clickedLink?.to === to && clickedLink?.workSlug === work.slug ? clickedLink : null;
+      const isWorkCardClick = Boolean(clickedWork && workSlug(to));
+      const isWorkTraverse = Boolean(
+        work && workSlug(from) && isWorkCardSurface(to) && clickedLink?.to !== to,
+      );
+      if (work && (isWorkCardClick || isWorkTraverse)) {
+        const fallback = defaultWorkSource(from);
+        const context = clickedWork?.workContext || fallback.context;
+        const parts = clickedWork?.workParts.length ? clickedWork.workParts : fallback.parts;
+        const record = {
+          from,
+          to,
+          slug: work.slug,
+          parts,
+          destinationContext: work.destinationContext,
+        };
+        try {
+          sessionStorage.setItem(workStorageKey, JSON.stringify(record));
+        } catch {}
+        markWork(work.slug, context, parts, event.viewTransition.finished);
+        clickedLink = null;
+        return;
+      }
       const route = authorRoute(from, to);
       if (route) {
         const fallback = defaultSource(from);
-        const clickedAuthor = clickedLink?.slug === route.slug ? clickedLink : null;
+        const clickedAuthor =
+          clickedLink?.to === to && clickedLink?.slug === route.slug ? clickedLink : null;
         const context = clickedAuthor?.context || fallback.context;
         const parts = clickedAuthor?.parts.length ? clickedAuthor.parts : fallback.parts;
         const record = {
@@ -92,14 +164,16 @@
           destinationContext: route.destinationContext,
         };
         try {
-          sessionStorage.setItem(storageKey, JSON.stringify(record));
+          sessionStorage.setItem(authorStorageKey, JSON.stringify(record));
         } catch {}
         markAuthor(route.slug, context, parts, event.viewTransition.finished);
+        clickedLink = null;
         return;
       }
       if (!(isIssueSurface(from) && isIssueSurface(to))) {
         event.viewTransition.skipTransition();
       }
+      clickedLink = null;
     });
 
     window.addEventListener('pagereveal', (event) => {
@@ -107,8 +181,8 @@
       const current = localPath(location.href);
       let record = null;
       try {
-        record = JSON.parse(sessionStorage.getItem(storageKey));
-        sessionStorage.removeItem(storageKey);
+        record = JSON.parse(sessionStorage.getItem(authorStorageKey));
+        sessionStorage.removeItem(authorStorageKey);
       } catch {}
       const activation = Reflect.get(window, 'navigation')?.activation;
       const from =
@@ -125,12 +199,28 @@
         markAuthor(route.slug, context, parts, event.viewTransition.ready);
         return;
       }
+      let workRecord = null;
+      try {
+        workRecord = JSON.parse(sessionStorage.getItem(workStorageKey));
+        sessionStorage.removeItem(workStorageKey);
+      } catch {}
+      const work = workRoute(from, current);
+      if (work && workRecord?.to === current && workRecord?.slug === work.slug) {
+        const parts = workRecord.parts?.length ? workRecord.parts : defaultWorkSource(from).parts;
+        markWork(
+          work.slug,
+          workRecord.destinationContext || work.destinationContext,
+          parts,
+          event.viewTransition.ready,
+        );
+        return;
+      }
       if (from && !(isIssueSurface(from) && isIssueSurface(current))) {
         event.viewTransition.skipTransition();
       }
     });
   })();
-})();</script><link rel="stylesheet" href="/tempest-web/_astro/Site.DoRzx10H.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="work-page site-main"><a class="breadcrumb" href="/tempest-web/issues/2026/">← The 2026 issue</a><header class="work-header"><div class="eyebrow accent">Prose <i>·</i> 2026</div><h1>Between shifts</h1><p class="work-author">by <a href="/tempest-web/authors/jordan-kim/" data-author-transition="jordan-kim" data-author-transition-context="byline" data-author-transition-parts="name" data-author-transition-author="jordan-kim" data-author-transition-part="name">Jordan Kim</a></p></header><div class="work-reading-layout"><div class="work-body"><div class="prose"><p>The coffee had gone cold by the time the sun reached the windows. Outside, someone was watering a row of small trees. Inside, the hallway was beginning its familiar rhythm.</p>
+})();</script><link rel="stylesheet" href="/tempest-web/_astro/Site.DoRzx10H.css"></head><body class="paper"><a class="skip-link" href="#main">Skip to content</a><header class="masthead"><div class="masthead-top"><span>Mayo Clinic Alix School of Medicine</span></div><div class="masthead-row"><a class="wordmark" href="/tempest-web/" aria-label="The Tempest home">The Tempest</a><nav aria-label="Main navigation"><a href="/tempest-web/issues/">Issues</a><span aria-hidden="true">•</span><a href="/tempest-web/authors/">Authors</a><span aria-hidden="true">•</span><a href="/tempest-web/about/">About</a></nav></div></header><main id="main" class="work-page site-main"><a class="breadcrumb" href="/tempest-web/issues/2026/">← The 2026 issue</a><header class="work-header"><div class="eyebrow accent">Prose <i>·</i> 2026</div><h1 data-work-transition-work="between-shifts" data-work-transition-context="detail" data-work-transition-part="title">Between shifts</h1><p class="work-author">by <a href="/tempest-web/authors/jordan-kim/" data-work-transition-work="between-shifts" data-work-transition-context="detail" data-work-transition-part="author" data-author-transition="jordan-kim" data-author-transition-context="byline" data-author-transition-parts="name" data-author-transition-author="jordan-kim" data-author-transition-part="name">Jordan Kim</a></p></header><div class="work-reading-layout"><div class="work-body"><div class="prose"><p>The coffee had gone cold by the time the sun reached the windows. Outside, someone was watering a row of small trees. Inside, the hallway was beginning its familiar rhythm.</p>
 <p>I had spent the morning collecting facts. A temperature. A date. The name of a medication written twice, once carefully and once in a hurry. But what I remembered was a man asking whether the rain had stopped.</p>
 <p>I went to the window to find out.</p>
 <p>This sample prose demonstrates the reading layout. Replace it with an approved contribution before publishing.</p>
