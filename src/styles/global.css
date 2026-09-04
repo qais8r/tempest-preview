@@ -541,6 +541,9 @@ button,
   text-align: right;
   letter-spacing: 0.32em;
 }
+.footer-bottom span:first-child {
+  letter-spacing: 0.32em;
+}
 .page-intro {
   padding: 6rem 0 5rem;
   border-bottom: 1px solid var(--ink);
