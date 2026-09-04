@@ -94,8 +94,15 @@ const siteSchema = z.object({
   editorialRepo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
 });
 
-async function collection(root, name, schema) {
-  const files = (await readdir(path.join(root, name))).filter((f) => f.endsWith('.json')).sort();
+async function collection(root, name, schema, optional = false) {
+  let entries;
+  try {
+    entries = await readdir(path.join(root, name));
+  } catch (error) {
+    if (optional && error.code === 'ENOENT') return [];
+    throw error;
+  }
+  const files = entries.filter((f) => f.endsWith('.json')).sort();
   return Promise.all(
     files.map(async (f) => {
       const entry = JSON.parse(await readFile(path.join(root, name, f), 'utf8'));
@@ -113,8 +120,8 @@ async function collection(root, name, schema) {
 export async function loadContent(root, preview = false) {
   const [issues, works, authors, rawSite, rawAbout] = await Promise.all([
     collection(root, 'issues', issueSchema),
-    collection(root, 'works', workSchema),
-    collection(root, 'authors', authorSchema),
+    collection(root, 'works', workSchema, true),
+    collection(root, 'authors', authorSchema, true),
     readFile(path.join(root, 'site.json'), 'utf8'),
     readFile(path.join(root, 'about.json'), 'utf8').catch((error) => {
       if (error.code === 'ENOENT') return '{}';
