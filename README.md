@@ -56,10 +56,10 @@ The first PDF page supplies the cover and its proportions. Work excerpts are gen
 Static output is in `dist/`. No application server or database is required. Set `SITE_URL` to the origin and `BASE_PATH` to the repository path for GitHub Pages, for example:
 
 ```sh
-SITE_URL=https://qais8r.github.io BASE_PATH=/tempest-preview npm run build
+SITE_URL=https://qais8r.github.io BASE_PATH=/tempest-web npm run build
 ```
 
-The maintained source is [qais8r/tempest-web](https://github.com/qais8r/tempest-web), on `main`. The website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/), served from the `gh-pages` branch of `qais8r/tempest-web`. Private content stays in `qais8r/tempest-content`. The public repository holds source on `main` and generated website files on `gh-pages`. Both repositories are independent of Brett's original site. Keep the content `SOURCE_REF` pinned to a verified source commit when upgrading the code.
+The maintained source is [qais8r/tempest-web](https://github.com/qais8r/tempest-web), on `main`. The website currently lives at [qais8r.github.io/tempest-web](https://qais8r.github.io/tempest-web/), served from the `gh-pages` branch of `qais8r/tempest-web`. Private content stays in `qais8r/tempest-content`. The public repository holds source on `main` and generated website files on `gh-pages`. Both repositories are independent of Brett's original site. Keep the content `SOURCE_REF` pinned to a verified source commit when upgrading the code.
 
 PDFs, images, and MP3s are committed directly to GitHub. A 25 MiB per-file build limit keeps the workflow compatible with browser uploads and a possible later Cloudflare Pages move. Larger future files need optimization or a separate media store. The original `/issues/2026/tempest-2026.pdf` path remains available, and the old flipbook and demo-work URLs redirect.
 

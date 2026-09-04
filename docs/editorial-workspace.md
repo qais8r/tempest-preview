@@ -20,7 +20,7 @@ Private editorial repository Actions variables:
 | `SOURCE_REF`       | The verified source commit on `main` |
 | `PUBLIC_SITE_REPO` | `qais8r/tempest-web`                 |
 | `SITE_URL`         | `https://qais8r.github.io`           |
-| `BASE_PATH`        | `/tempest-preview`                   |
+| `BASE_PATH`        | `/tempest-web`                       |
 
 `PAGES_DEPLOY_KEY` is an SSH private key stored as an encrypted Actions secret. Its public key is registered as a write deploy key on the destination repository only. Do not use a broad personal access token. The workflow checks out private content, builds published records, and copies only `dist/` into the public `gh-pages` branch.
 

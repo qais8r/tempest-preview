@@ -21,7 +21,7 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          BASE_PATH: /tempest-preview
+          BASE_PATH: /tempest-web
       - run: npm run check
       - name: Check production excludes test drafts
         run: |
