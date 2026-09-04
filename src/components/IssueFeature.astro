@@ -39,6 +39,7 @@ const selected = featured.length ? featured : allWorks.slice(0, 3);
         class="hero-image"
         src={url(issue.cover)}
         alt={`Cover of The Tempest ${issue.year}`}
+        style={`view-transition-name: issue-cover-${issue.year}`}
         fetchpriority="high"
         width={issue.coverWidth}
         height={issue.coverHeight}

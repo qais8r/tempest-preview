@@ -11,8 +11,15 @@ interface Props {
   description?: string;
   home?: boolean;
   reader?: boolean;
+  issueTransitions?: boolean;
 }
-const { title, description = site.description, home = false, reader = false } = Astro.props;
+const {
+  title,
+  description = site.description,
+  home = false,
+  reader = false,
+  issueTransitions = false,
+} = Astro.props;
 const currentYear = new Date().getFullYear();
 ---
 
@@ -26,6 +33,7 @@ const currentYear = new Date().getFullYear();
     {preview && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <title>{title ? `${title} · The Tempest` : 'The Tempest · Art & the human experience'}</title>
+    {issueTransitions && <style is:inline set:html="@view-transition { navigation: auto; }" />}
   </head>
   <body class:list={[reader ? 'reader-body' : 'paper', { 'home-page': home }]}>
     <a class="skip-link" href="#main">Skip to content</a>

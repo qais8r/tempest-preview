@@ -39,6 +39,7 @@ const list: Issue[] = issues.filter((i) => i.year !== exclude);
               <img
                 src={url(issue.cover)}
                 alt={`The Tempest ${issue.year} cover`}
+                style={`view-transition-name: issue-cover-${issue.year}`}
                 loading="lazy"
                 width={issue.coverWidth}
                 height={issue.coverHeight}
