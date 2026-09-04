@@ -779,6 +779,7 @@ button,
   font: 400 clamp(4.5rem, 8vw, 8rem)/0.8 var(--serif);
   margin: 1.5rem 0 2.5rem;
   letter-spacing: -0.05em;
+  font-feature-settings: 'calt' 1;
 }
 .about-layout {
   display: grid;
