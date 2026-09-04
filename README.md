@@ -27,7 +27,7 @@ The prepare script validates JSON, copies only media referenced by included reco
 
 Use the separate [private editorial workspace](https://github.com/qais8r/tempest-editorial). Its [Pages CMS dashboard](https://app.pagescms.org/qais8r/tempest-editorial/main) provides forms for Issues, Works, Authors, About, and occasional Site settings. See [the editor guide](editorial/README.md) and [setup notes](docs/editorial-workspace.md).
 
-Saving a CMS record commits it privately. **Build private preview** builds a private downloadable artifact. **Publish website** builds only records marked Ready to publish and pushes static files to a separate public GitHub Pages repository through a repository-specific deploy key. GitHub Pages preview URLs are public; unpublished material must not be deployed there. A protected browser preview can be added later with another host.
+Saving a CMS record commits it privately. **Build private preview** builds a private downloadable artifact. **Publish website** builds only records marked Ready to publish and pushes static files to the public repository's `gh-pages` branch through a repository-specific deploy key. GitHub Pages preview URLs are public; unpublished material must not be deployed there. A protected browser preview can be added later with another host.
 
 The `content/` folder here is a public development fixture. It includes the supplied 2018, 2019, 2020, 2021, 2022, 2023, and 2026 PDFs. It is not the live editorial database. All future drafts and uploads belong in the private workspace. To build against it locally:
 
@@ -59,7 +59,7 @@ Static output is in `dist/`. No application server or database is required. Set 
 SITE_URL=https://qais8r.github.io BASE_PATH=/tempest-preview npm run build
 ```
 
-The maintained source is [qais8r/tempest](https://github.com/qais8r/tempest), on `main`. The website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/), served from the `gh-pages` branch of `qais8r/tempest-preview`. Private content stays in `qais8r/tempest-editorial`. These repositories are independent of Brett's original site. Keep the editorial `SOURCE_REF` pinned to a verified source commit when upgrading the code.
+The maintained source is [qais8r/tempest-preview](https://github.com/qais8r/tempest-preview), on `main`. The website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/), served from the `gh-pages` branch of `qais8r/tempest-preview`. Private content stays in `qais8r/tempest-editorial`. The public repository holds source on `main` and generated website files on `gh-pages`. Both repositories are independent of Brett's original site. Keep the editorial `SOURCE_REF` pinned to a verified source commit when upgrading the code.
 
 PDFs, images, and MP3s are committed directly to GitHub. A 25 MiB per-file build limit keeps the workflow compatible with browser uploads and a possible later Cloudflare Pages move. Larger future files need optimization or a separate media store. The original `/issues/2026/tempest-2026.pdf` path remains available, and the old flipbook and demo-work URLs redirect.
 
