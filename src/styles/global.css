@@ -654,6 +654,9 @@ button,
 .work-art {
   margin: 4rem 0;
 }
+.work-art:first-child {
+  margin-top: 0;
+}
 .work-art img {
   max-height: 52rem;
   width: 100%;
