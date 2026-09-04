@@ -3,8 +3,8 @@
 }
 .author-directory-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 3rem 2rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3rem 1.5rem;
   list-style: none;
   margin: 2.2rem 0 0;
   padding: 0;
@@ -41,14 +41,20 @@
   transition: color 0.2s ease;
 }
 .directory-name h3 {
+  min-width: 0;
   margin: 0;
-  font: 400 clamp(1.8rem, 3vw, 3rem) / 1 var(--serif);
+  font: 400 clamp(1.6rem, 2.2vw, 2.35rem) / 0.95 var(--serif);
 }
 .directory-name svg {
   flex-shrink: 0;
 }
 .author-directory-card:is(:hover, :focus-visible) .directory-name {
   color: var(--red);
+}
+@media (max-width: 960px) {
+  .author-directory-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 720px) {
   .author-directory {
