@@ -34,7 +34,6 @@ const author = authorFor(work);
           data-work-transition-work={work.slug}
           data-work-transition-context="detail"
           data-work-transition-part="author"
-          data-author-transition={author.slug}
           data-author-transition-context="byline"
           data-author-transition-parts="name"
           data-author-transition-author={author.slug}
@@ -101,7 +100,6 @@ const author = authorFor(work);
           <a
             class="author-teaser"
             href={url(`/authors/${author.slug}/`)}
-            data-author-transition={author.slug}
             data-author-transition-context="teaser"
             data-author-transition-parts="portrait name"
           >

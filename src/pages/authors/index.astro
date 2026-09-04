@@ -28,7 +28,6 @@ const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.
                   <a
                     class="author-directory-card"
                     href={url(`/authors/${author.slug}/`)}
-                    data-author-transition={author.slug}
                     data-author-transition-context="card"
                     data-author-transition-parts="portrait name"
                   >

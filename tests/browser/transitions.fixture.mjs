@@ -65,7 +65,6 @@ export const test = base.extend({
       };
     }, prefix);
     await use({
-      events,
       async visit(path) {
         const start = events.length;
         await page.goto(path);
