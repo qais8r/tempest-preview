@@ -525,7 +525,7 @@ button,
   display: block;
   margin-top: 0.45rem;
   font: 500 0.49rem/1.45 var(--sans);
-  letter-spacing: 0.33em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
 }
 .footer-bottom {
@@ -539,10 +539,6 @@ button,
 }
 .footer-bottom span:last-child {
   text-align: right;
-  letter-spacing: 0.32em;
-}
-.footer-bottom span:first-child {
-  letter-spacing: 0.32em;
 }
 .page-intro {
   padding: 6rem 0 5rem;
