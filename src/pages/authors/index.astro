@@ -8,7 +8,7 @@ const alphabet = new Intl.Collator('en', { sensitivity: 'base', numeric: true })
 const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.trim()));
 ---
 
-<Site title="The authors">
+<Site title="The authors" authorTransitions>
   <main id="main" class="site-main">
     <section class="author-directory" aria-labelledby="authors-title">
       <div class="section-heading">
@@ -25,8 +25,19 @@ const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.
               const contributions = works.filter((work) => work.author === author.slug).length;
               return (
                 <li>
-                  <a class="author-directory-card" href={url(`/authors/${author.slug}/`)}>
-                    <div class="directory-portrait">
+                  <a
+                    class="author-directory-card"
+                    href={url(`/authors/${author.slug}/`)}
+                    data-author-transition={author.slug}
+                    data-author-transition-context="card"
+                    data-author-transition-parts="portrait name"
+                  >
+                    <div
+                      class="directory-portrait"
+                      data-author-transition-author={author.slug}
+                      data-author-transition-context="card"
+                      data-author-transition-part="portrait"
+                    >
                       {author.portrait ? (
                         <img
                           src={url(author.portrait)}
@@ -40,7 +51,13 @@ const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.
                       )}
                     </div>
                     <div class="directory-name">
-                      <h3>{author.name}</h3>
+                      <h3
+                        data-author-transition-author={author.slug}
+                        data-author-transition-context="card"
+                        data-author-transition-part="name"
+                      >
+                        {author.name}
+                      </h3>
                       <Icon name="arrow" />
                     </div>
                     <p class="eyebrow muted">

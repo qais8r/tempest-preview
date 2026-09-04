@@ -3,14 +3,21 @@ import { authorFor, url, type Work } from '../lib/content';
 import Icon from './Icon.astro';
 interface Props {
   work: Work;
+  authorTransition?: boolean;
 }
-const { work } = Astro.props;
+const { work, authorTransition = false } = Astro.props;
 const author = authorFor(work);
 const artwork = work.artworks[0];
 ---
 
 <article class="work-card">
-  <a class:list={['work-card-link', { 'has-artwork': artwork }]} href={url(`/works/${work.slug}/`)}>
+  <a
+    class:list={['work-card-link', { 'has-artwork': artwork }]}
+    href={url(`/works/${work.slug}/`)}
+    data-author-transition={authorTransition ? author.slug : undefined}
+    data-author-transition-context={authorTransition ? 'profile' : undefined}
+    data-author-transition-parts={authorTransition ? 'name' : undefined}
+  >
     <div class="work-card-copy">
       <span class="eyebrow accent">{work.category}</span><h3>{work.title}</h3><p class="byline">
         by {author.name}

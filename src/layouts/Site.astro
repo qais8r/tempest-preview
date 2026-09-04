@@ -6,12 +6,14 @@ import '@fontsource/manrope/latin-400.css';
 import '@fontsource/manrope/latin-500.css';
 import '../styles/global.css';
 import { site, url, preview } from '../lib/content';
+import ViewTransitions from '../components/ViewTransitions.astro';
 interface Props {
   title?: string;
   description?: string;
   home?: boolean;
   reader?: boolean;
   issueTransitions?: boolean;
+  authorTransitions?: boolean;
 }
 const {
   title,
@@ -19,8 +21,10 @@ const {
   home = false,
   reader = false,
   issueTransitions = false,
+  authorTransitions = false,
 } = Astro.props;
 const currentYear = new Date().getFullYear();
+const viewTransitions = issueTransitions || authorTransitions;
 ---
 
 <!doctype html>
@@ -33,7 +37,7 @@ const currentYear = new Date().getFullYear();
     {preview && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <title>{title ? `${title} · The Tempest` : 'The Tempest · Art & the human experience'}</title>
-    {issueTransitions && <style is:inline set:html="@view-transition { navigation: auto; }" />}
+    {viewTransitions && <ViewTransitions root={url('/')} />}
   </head>
   <body class:list={[reader ? 'reader-body' : 'paper', { 'home-page': home }]}>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -110,9 +114,7 @@ const currentYear = new Date().getFullYear();
           </div>
           <div class="footer-bottom">
             <>
-              <span>
-                © {currentYear} The Tempest
-              </span>
+              <span>© {currentYear} The Tempest</span>
               <span>Designed by Qaisar Sulaiman</span>
             </>
           </div>

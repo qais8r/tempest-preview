@@ -1,0 +1,141 @@
+---
+interface Props {
+  root: string;
+}
+
+const { root: transitionRoot } = Astro.props;
+---
+
+<style is:inline set:html="@view-transition { navigation: auto; }"></style>
+<script is:inline define:vars={{ transitionRoot }}>
+  (() => {
+    const basePath = new URL(transitionRoot, location.origin).pathname;
+    const storageKey = 'tempest-author-transition';
+    let clickedLink = null;
+
+    const localPath = (value) => {
+      const pathname = new URL(value, location.href).pathname;
+      if (!pathname.startsWith(basePath)) return null;
+      return `/${pathname.slice(basePath.length)}`;
+    };
+    const authorSlug = (path) => path?.match(/^\/authors\/([^/]+)\/$/)?.[1] || null;
+    const isAuthorIndex = (path) => path === '/authors/';
+    const isWork = (path) => /^\/works\/[^/]+\/$/.test(path || '');
+    const isIssueSurface = (path) =>
+      path === '/' || path === '/issues/' || /^\/issues\/\d{4}\/$/.test(path || '');
+    const authorRoute = (from, to) => {
+      const destinationAuthor = authorSlug(to);
+      if (destinationAuthor && (isAuthorIndex(from) || isWork(from))) {
+        return { slug: destinationAuthor, destinationContext: 'profile' };
+      }
+      const sourceAuthor = authorSlug(from);
+      if (sourceAuthor && (isAuthorIndex(to) || isWork(to))) {
+        return {
+          slug: sourceAuthor,
+          destinationContext: isAuthorIndex(to) ? 'card' : 'byline',
+        };
+      }
+      return null;
+    };
+    const defaultSource = (path) => {
+      if (isAuthorIndex(path)) return { context: 'card', parts: ['portrait', 'name'] };
+      if (authorSlug(path)) return { context: 'profile', parts: ['portrait', 'name'] };
+      return { context: 'byline', parts: ['name'] };
+    };
+    const markAuthor = (slug, context, parts, until) => {
+      const marked = [];
+      document.querySelectorAll('[data-author-transition-author]').forEach((element) => {
+        if (
+          element.dataset.authorTransitionAuthor === slug &&
+          element.dataset.authorTransitionContext === context &&
+          parts.includes(element.dataset.authorTransitionPart)
+        ) {
+          element.style.viewTransitionName = `author-${element.dataset.authorTransitionPart}`;
+          marked.push(element);
+        }
+      });
+      document.documentElement.style.viewTransitionName = 'none';
+      Promise.resolve(until)
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.style.viewTransitionName = '';
+          marked.forEach((element) => {
+            element.style.viewTransitionName = '';
+          });
+        });
+    };
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+        if (!anchor) return;
+        clickedLink = {
+          to: localPath(anchor.href),
+          slug: anchor.dataset.authorTransition || null,
+          context: anchor.dataset.authorTransitionContext || null,
+          parts: (anchor.dataset.authorTransitionParts || '').split(' ').filter(Boolean),
+        };
+      },
+      { capture: true },
+    );
+
+    window.addEventListener('pageswap', (event) => {
+      if (!event.viewTransition) return;
+      const from = localPath(location.href);
+      const to = event.activation?.entry?.url
+        ? localPath(event.activation.entry.url)
+        : clickedLink?.to;
+      const route = authorRoute(from, to);
+      if (route) {
+        const fallback = defaultSource(from);
+        const clickedAuthor = clickedLink?.slug === route.slug ? clickedLink : null;
+        const context = clickedAuthor?.context || fallback.context;
+        const parts = clickedAuthor?.parts.length ? clickedAuthor.parts : fallback.parts;
+        const record = {
+          from,
+          to,
+          slug: route.slug,
+          parts,
+          destinationContext: route.destinationContext,
+        };
+        try {
+          sessionStorage.setItem(storageKey, JSON.stringify(record));
+        } catch {}
+        markAuthor(route.slug, context, parts, event.viewTransition.finished);
+        return;
+      }
+      if (!(isIssueSurface(from) && isIssueSurface(to))) {
+        event.viewTransition.skipTransition();
+      }
+    });
+
+    window.addEventListener('pagereveal', (event) => {
+      if (!event.viewTransition) return;
+      const current = localPath(location.href);
+      let record = null;
+      try {
+        record = JSON.parse(sessionStorage.getItem(storageKey));
+        sessionStorage.removeItem(storageKey);
+      } catch {}
+      const activation = Reflect.get(window, 'navigation')?.activation;
+      const from =
+        record?.to === current
+          ? record.from
+          : activation?.from?.url
+            ? localPath(activation.from.url)
+            : null;
+      const route = authorRoute(from, current);
+      if (route) {
+        const parts = record?.slug === route.slug ? record.parts : defaultSource(from).parts;
+        const context =
+          record?.slug === route.slug ? record.destinationContext : route.destinationContext;
+        markAuthor(route.slug, context, parts, event.viewTransition.ready);
+        return;
+      }
+      if (from && !(isIssueSurface(from) && isIssueSurface(current))) {
+        event.viewTransition.skipTransition();
+      }
+    });
+  })();
+</script>

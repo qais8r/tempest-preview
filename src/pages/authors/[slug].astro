@@ -9,10 +9,21 @@ const { author } = Astro.props;
 const list = works.filter((w) => w.author === author.slug);
 ---
 
-<Site title={author.name}
+<Site title={author.name} authorTransitions
   ><main id="main" class="site-main author-page">
-    <a class="breadcrumb" href={url('/authors/')}>← All authors</a><section class="author-profile">
-      <div class="author-portrait">
+    <a
+      class="breadcrumb"
+      href={url('/authors/')}
+      data-author-transition={author.slug}
+      data-author-transition-context="profile"
+      data-author-transition-parts="portrait name">← All authors</a
+    ><section class="author-profile">
+      <div
+        class="author-portrait"
+        data-author-transition-author={author.slug}
+        data-author-transition-context="profile"
+        data-author-transition-part="portrait"
+      >
         {
           author.portrait ? (
             <img src={url(author.portrait)} alt={author.name} />
@@ -21,14 +32,17 @@ const list = works.filter((w) => w.author === author.slug);
           )
         }
       </div><div>
-        <span class="eyebrow accent">A voice in The Tempest</span><h1>{author.name}</h1><div
-          class="prose"
-          set:html={prose(author.bio)}
-        />
+        <span class="eyebrow accent">A voice in The Tempest</span><h1
+          data-author-transition-author={author.slug}
+          data-author-transition-context="profile"
+          data-author-transition-part="name"
+        >
+          {author.name}
+        </h1><div class="prose" set:html={prose(author.bio)} />
       </div>
     </section><section class="author-works">
       <div class="section-heading"><h2>Selected contributions</h2></div><div class="work-grid">
-        {list.map((work) => <WorkCard work={work} />)}
+        {list.map((work) => <WorkCard work={work} authorTransition />)}
       </div>
     </section>
   </main></Site

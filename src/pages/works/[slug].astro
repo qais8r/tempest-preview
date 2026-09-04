@@ -18,14 +18,21 @@ const { work } = Astro.props;
 const author = authorFor(work);
 ---
 
-<Site title={work.title} description={work.excerpt}
+<Site title={work.title} description={work.excerpt} authorTransitions
   ><main id="main" class="work-page site-main">
     <a class="breadcrumb" href={issueUrl(work.issue)}>← The {work.issue} issue</a>
     <header class="work-header">
       <div class="eyebrow accent">{work.category} <i>·</i> {work.issue}</div><h1>{work.title}</h1><p
         class="work-author"
       >
-        by <a href={url(`/authors/${author.slug}/`)}>{author.name}</a>
+        by <a
+          href={url(`/authors/${author.slug}/`)}
+          data-author-transition={author.slug}
+          data-author-transition-context="byline"
+          data-author-transition-parts="name"
+          data-author-transition-author={author.slug}
+          data-author-transition-part="name">{author.name}</a
+        >
       </p>
     </header>
     <div class="work-reading-layout">
@@ -84,18 +91,43 @@ const author = authorFor(work);
         }
         <section class="work-author-note" aria-labelledby="work-author-title">
           <h2 class="eyebrow" id="work-author-title">About the author</h2>
-          <a class="author-teaser" href={url(`/authors/${author.slug}/`)}>
+          <a
+            class="author-teaser"
+            href={url(`/authors/${author.slug}/`)}
+            data-author-transition={author.slug}
+            data-author-transition-context="teaser"
+            data-author-transition-parts="portrait name"
+          >
             {
               author.portrait ? (
-                <img src={url(author.portrait)} alt="" loading="lazy" />
+                <img
+                  src={url(author.portrait)}
+                  alt=""
+                  loading="lazy"
+                  data-author-transition-author={author.slug}
+                  data-author-transition-context="teaser"
+                  data-author-transition-part="portrait"
+                />
               ) : (
-                <span class="avatar-letter" aria-hidden="true">
+                <span
+                  class="avatar-letter"
+                  aria-hidden="true"
+                  data-author-transition-author={author.slug}
+                  data-author-transition-context="teaser"
+                  data-author-transition-part="portrait"
+                >
                   {initials(author.name)}
                 </span>
               )
             }
             <div>
-              <h3>{author.name}</h3>
+              <h3
+                data-author-transition-author={author.slug}
+                data-author-transition-context="teaser"
+                data-author-transition-part="name"
+              >
+                {author.name}
+              </h3>
               <span class="text-link">Meet the author <Icon name="arrow" size={16} /></span>
             </div>
           </a>
