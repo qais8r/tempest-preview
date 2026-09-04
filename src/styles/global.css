@@ -969,11 +969,13 @@ button,
     width: clamp(2.5rem, 8vw, 3.5rem);
   }
   .footer-bottom {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
     line-height: 1.6;
   }
   .footer-bottom span:last-child {
-    display: none;
+    display: block;
+    white-space: nowrap;
   }
   .page-intro {
     padding: 4rem 0;
