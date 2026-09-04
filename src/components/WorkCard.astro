@@ -14,13 +14,26 @@ const artwork = work.artworks[0];
   <a
     class:list={['work-card-link', { 'has-artwork': artwork }]}
     href={url(`/works/${work.slug}/`)}
+    data-work-transition={work.slug}
+    data-work-transition-context="card"
+    data-work-transition-parts="title author"
     data-author-transition={authorTransition ? author.slug : undefined}
     data-author-transition-context={authorTransition ? 'profile' : undefined}
     data-author-transition-parts={authorTransition ? 'name' : undefined}
   >
     <div class="work-card-copy">
-      <span class="eyebrow accent">{work.category}</span><h3>{work.title}</h3><p class="byline">
-        by {author.name}
+      <span class="eyebrow accent">{work.category}</span><h3
+        data-work-transition-work={work.slug}
+        data-work-transition-context="card"
+        data-work-transition-part="title"
+      >
+        {work.title}
+      </h3><p class="byline">
+        by <span
+          data-work-transition-work={work.slug}
+          data-work-transition-context="card"
+          data-work-transition-part="author">{author.name}</span
+        >
       </p>{work.excerpt && <p class="work-excerpt">{work.excerpt}</p>}
       {
         work.recordings.length > 0 && (

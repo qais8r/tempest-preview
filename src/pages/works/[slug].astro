@@ -22,11 +22,18 @@ const author = authorFor(work);
   ><main id="main" class="work-page site-main">
     <a class="breadcrumb" href={issueUrl(work.issue)}>← The {work.issue} issue</a>
     <header class="work-header">
-      <div class="eyebrow accent">{work.category} <i>·</i> {work.issue}</div><h1>{work.title}</h1><p
-        class="work-author"
+      <div class="eyebrow accent">{work.category} <i>·</i> {work.issue}</div><h1
+        data-work-transition-work={work.slug}
+        data-work-transition-context="detail"
+        data-work-transition-part="title"
       >
+        {work.title}
+      </h1><p class="work-author">
         by <a
           href={url(`/authors/${author.slug}/`)}
+          data-work-transition-work={work.slug}
+          data-work-transition-context="detail"
+          data-work-transition-part="author"
           data-author-transition={author.slug}
           data-author-transition-context="byline"
           data-author-transition-parts="name"
