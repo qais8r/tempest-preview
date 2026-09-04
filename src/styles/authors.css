@@ -27,6 +27,8 @@
   object-fit: cover;
   object-position: center;
   filter: grayscale(1);
+  transition: 0.5s ease;
+  transition-property: filter, transform;
 }
 .directory-portrait > span {
   font: 400 clamp(4rem, 8vw, 8rem) / 1 var(--serif);
@@ -51,6 +53,10 @@
 }
 .author-directory-card:is(:hover, :focus-visible) .directory-name {
   color: var(--red);
+}
+.author-directory-card:is(:hover, :focus-visible) .directory-portrait img {
+  filter: grayscale(0);
+  transform: scale(1.015);
 }
 @media (max-width: 960px) {
   .author-directory-grid {
