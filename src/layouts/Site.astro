@@ -58,28 +58,6 @@ const currentYear = new Date().getFullYear();
         <footer class="site-footer">
           <div class="footer-reflection">
             <>
-              <p>
-                {site.tagline.split(/\r?\n/).map((line, index) => (
-                  <Fragment>
-                    {index > 0 && (
-                      <>
-                        <br />{' '}
-                      </>
-                    )}
-                    {line}
-                  </Fragment>
-                ))}
-              </p>
-              <img
-                class="footer-tree"
-                draggable="false"
-                src={url('/footer-botanical.svg')}
-                alt=""
-                aria-hidden="true"
-                width="240"
-                height="250"
-                loading="lazy"
-              />
               <div class="school-lockup">
                 <>
                   <img
@@ -98,6 +76,28 @@ const currentYear = new Date().getFullYear();
                   </div>
                 </>
               </div>
+              <img
+                class="footer-tree"
+                draggable="false"
+                src={url('/footer-botanical.svg')}
+                alt=""
+                aria-hidden="true"
+                width="240"
+                height="250"
+                loading="lazy"
+              />
+              <p>
+                {site.tagline.split(/\r?\n/).map((line, index) => (
+                  <Fragment>
+                    {index > 0 && (
+                      <>
+                        <br />{' '}
+                      </>
+                    )}
+                    {line}
+                  </Fragment>
+                ))}
+              </p>
             </>
           </div>
           <div class="footer-bottom">
