@@ -1,6 +1,6 @@
 # The Tempest editorial workspace
 
-This private repository holds issues, works, authors, and uploaded files. Open it in [Pages CMS](https://app.pagescms.org/qais8r/tempest-editorial/main) to edit using forms.
+This private repository holds issues, works, authors, and uploaded files. Open it in [Pages CMS](https://app.pagescms.org/qais8r/tempest-content/main) to edit using forms.
 
 ## Publish an issue
 
@@ -36,4 +36,4 @@ Sign in to Pages CMS with GitHub and install its GitHub App for **this repositor
 
 The maintainer sets repository variables `SOURCE_REPO`, `SOURCE_REF`, `PUBLIC_SITE_REPO`, `SITE_URL`, and `BASE_PATH`. A repository-specific write deploy key is stored as the `PAGES_DEPLOY_KEY` Actions secret. The publishing workflow writes generated files to `gh-pages`; it does not commit to the source branch. No personal GitHub token is stored.
 
-Website code is maintained on the `main` branch of [qais8r/tempest-preview](https://github.com/qais8r/tempest-preview). The generated website files use its separate `gh-pages` branch. The public website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/). The maintainer pins `SOURCE_REPO` to `qais8r/tempest-preview` and `SOURCE_REF` to a verified source commit. Changing hosting later requires a new destination and a deploy key for that repository.
+Website code is maintained on the `main` branch of [qais8r/tempest-web](https://github.com/qais8r/tempest-web). The generated website files use its separate `gh-pages` branch. The public website stays at [qais8r.github.io/tempest-preview](https://qais8r.github.io/tempest-preview/). The maintainer pins `SOURCE_REPO` to `qais8r/tempest-web` and `SOURCE_REF` to a verified source commit. Changing hosting later requires a new destination and a deploy key for that repository.

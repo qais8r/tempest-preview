@@ -1,6 +1,6 @@
 # Editorial workspace setup
 
-Edit real content in `qais8r/tempest-editorial`, a private repository. The public Astro repository contains development fixtures only.
+Edit real content in `qais8r/tempest-content`, a private repository. The public Astro repository contains development fixtures only.
 
 ## Connect the editor
 
@@ -10,15 +10,15 @@ The setup can be transferred to a school-owned GitHub account later. Transfer re
 
 ## GitHub Pages destination
 
-The maintained source is `qais8r/tempest-preview`, on `main`. GitHub Pages serves the same repository's `gh-pages` branch. Source changes belong on `main`; only generated website files belong on `gh-pages`. Keep Pages configured to serve `gh-pages` even though `main` is the default branch. Brett's repository is no longer used for source, builds, or publishing.
+The maintained source is `qais8r/tempest-web`, on `main`. GitHub Pages serves the same repository's `gh-pages` branch. Source changes belong on `main`; only generated website files belong on `gh-pages`. Keep Pages configured to serve `gh-pages` even though `main` is the default branch. Brett's repository is no longer used for source, builds, or publishing.
 
 Private editorial repository Actions variables:
 
 | Variable           | Current value                        |
 | ------------------ | ------------------------------------ |
-| `SOURCE_REPO`      | `qais8r/tempest-preview`             |
+| `SOURCE_REPO`      | `qais8r/tempest-web`                 |
 | `SOURCE_REF`       | The verified source commit on `main` |
-| `PUBLIC_SITE_REPO` | `qais8r/tempest-preview`             |
+| `PUBLIC_SITE_REPO` | `qais8r/tempest-web`                 |
 | `SITE_URL`         | `https://qais8r.github.io`           |
 | `BASE_PATH`        | `/tempest-preview`                   |
 
