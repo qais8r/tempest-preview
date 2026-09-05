@@ -1,7 +1,7 @@
 import raw from '../generated/content.json';
 import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
-export { isPoetry } from '../../scripts/text.mjs';
+export { initials, isPoetry } from '../../scripts/text.mjs';
 
 export interface ImageSource {
   src: string;
@@ -73,12 +73,6 @@ export const readerUrl = (i: Issue | string, page?: number | null) =>
   `${issueUrl(i)}reader/${page ? `?page=${page}` : ''}`;
 export const authorFor = (w: Work) => authors.find((a) => a.slug === w.author)!;
 export const worksFor = (i: Issue) => works.filter((w) => w.issue === i.year);
-export const initials = (s: string) =>
-  s
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('');
 export function prose(value: string) {
   return sanitizeHtml(marked.parse(value, { async: false }) as string, {
     allowedTags: ['p', 'br', 'em', 'strong', 'a', 'blockquote', 'ul', 'ol', 'li', 'h2', 'h3', 'hr'],

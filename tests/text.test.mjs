@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { workExcerpt } from '../scripts/text.mjs';
+import { initials, workExcerpt } from '../scripts/text.mjs';
+
+test('initials use the first and last words of a name', () => {
+  assert.equal(initials('Dzhuliyan "Jay" Vasilev'), 'DV');
+  assert.equal(initials('  Alexandria   Catherine Morgan  '), 'AM');
+  assert.equal(initials('Cher'), 'C');
+  assert.equal(initials(''), '');
+});
 
 test('prose excerpts omit markup and hidden content while retaining readable punctuation', () => {
   const body =
