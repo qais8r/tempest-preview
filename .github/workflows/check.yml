@@ -18,6 +18,13 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Cache public fixture covers
+        uses: actions/cache@v4
+        with:
+          path: .cache/covers
+          key: public-covers-${{ runner.os }}-${{ hashFiles('scripts/prepare.mjs', 'scripts/images.mjs', 'package-lock.json') }}-${{ hashFiles('content/media/**/*.pdf') }}
+          restore-keys: |
+            public-covers-${{ runner.os }}-${{ hashFiles('scripts/prepare.mjs', 'scripts/images.mjs', 'package-lock.json') }}-
       - run: npx playwright install --with-deps chromium webkit
       - run: npm test
       - run: npm run build
@@ -28,4 +35,6 @@ jobs:
         run: |
           test ! -d dist/works/anatomy-of-quiet
           test ! -f dist/media/audio/sample-reading.mp3
+          test ! -d dist/media/thumbnails
+          test ! -f dist/media/images/sample-light.jpg
           test -f dist/media/pdfs/2026.pdf

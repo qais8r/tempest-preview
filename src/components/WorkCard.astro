@@ -1,5 +1,5 @@
 ---
-import { authorFor, url, type Work } from '../lib/content';
+import { authorFor, url, imageSrcset, type Work } from '../lib/content';
 import Icon from './Icon.astro';
 interface Props {
   work: Work;
@@ -38,6 +38,19 @@ const artwork = work.artworks[0];
         )
       }
     </div>
-    {artwork && <img class="work-thumb" src={url(artwork.image)} alt="" loading="lazy" />}
+    {
+      artwork && (
+        <img
+          class="work-thumb"
+          src={url(artwork.thumbnailSources?.[0].src || artwork.image)}
+          srcset={imageSrcset(artwork.thumbnailSources)}
+          sizes="(max-width: 720px) 7.2rem, (max-width: 1180px) 6.5rem, 8rem"
+          width="128"
+          height="128"
+          alt=""
+          loading="lazy"
+        />
+      )
+    }
   </a>
 </article>

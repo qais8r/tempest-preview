@@ -1,10 +1,11 @@
 ---
-import script from '../scripts/view-transitions.js?raw';
+import { transitionScript } from '../lib/transition-script';
 
 interface Props {
   root: string;
 }
 const { root } = Astro.props;
+const script = await transitionScript;
 ---
 
 <style is:inline>

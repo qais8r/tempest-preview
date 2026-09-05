@@ -1,5 +1,5 @@
 ---
-import { issues, issueUrl, url, type Issue } from '../lib/content';
+import { issues, issueUrl, url, imageSrcset, type Issue } from '../lib/content';
 import Icon from './Icon.astro';
 interface Props {
   exclude?: string;
@@ -38,6 +38,8 @@ const list: Issue[] = issues.filter((i) => i.year !== exclude);
               <span class="archive-index">{String(index + 1).padStart(2, '0')}</span>
               <img
                 src={url(issue.cover)}
+                srcset={imageSrcset(issue.coverSources)}
+                sizes="(max-width: 720px) calc((100vw - 3rem) / 2), (max-width: 960px) calc((100vw - 6.2rem) / 3), (max-width: 1180px) calc((100vw - 7.8rem) / 4), (min-width: 1500px) calc((100vw - 14rem) / 6), calc((100vw - 10.8rem) / 4)"
                 alt={`The Tempest ${issue.year} cover`}
                 style={`view-transition-name: issue-cover-${issue.year}`}
                 loading="lazy"

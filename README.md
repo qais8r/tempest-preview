@@ -26,7 +26,7 @@ npm run preview           # Serve the most recent build locally
 
 Browser tests build the public `content/` fixtures in preview mode with `/tempest-web` as the base path, then serve them on port 4537. They cover shared elements, Back and Forward, reloads, mobile layouts, interrupted transitions, storage failures, missing navigation APIs, and reduced motion. Playwright stops its server after the run.
 
-The prepare script validates JSON, copies only media referenced by included records, generates PDF covers, and checks reader page numbers. Run it again or restart the dev server after editing content. Cover images are cached by PDF hash. Generated files are ignored by Git.
+The prepare script validates JSON, copies only media referenced by included records, generates PDF covers, and checks reader page numbers. It also generates WebP cover sizes and square thumbnails for JPEG and PNG artwork, keeping the originals. Run it again or restart the dev server after editing content. Cover images are cached by PDF hash and renderer configuration; CI restores the public fixture cache between runs. Generated files are ignored by Git.
 
 ## Editing and publishing
 

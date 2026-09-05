@@ -32,6 +32,7 @@ function setupReader(shell: HTMLElement) {
     Math.max(1, Math.trunc(Number(new URL(location.href).searchParams.get('page'))) || 1),
   );
   let generation = 0,
+    nearbyRequest = 0,
     observer: IntersectionObserver | undefined;
   let queue = Promise.resolve();
   let mounting = false;
@@ -53,14 +54,28 @@ function setupReader(shell: HTMLElement) {
     return node;
   }
 
-  function renderPage(node: HTMLElement, number: number, width: number, force = false) {
-    if (rendered.has(node) && !force) return Promise.resolve();
-    if (inflight.has(node)) return inflight.get(node)!;
+  async function renderPage(
+    node: HTMLElement,
+    number: number,
+    width: number,
+    force = false,
+    wanted: () => boolean = () => true,
+  ): Promise<void> {
+    if (rendered.has(node) && !force) return;
     const version = generation;
+    const valid = () => node.isConnected && version === generation && wanted();
+    const pending = inflight.get(node);
+    if (pending) {
+      // A newer request can need a page whose older request is about to be discarded.
+      await pending;
+      if (valid() && !rendered.has(node)) await renderPage(node, number, width, force, wanted);
+      return;
+    }
     const task = queue
       .then(async () => {
-        if (!node.isConnected || version !== generation) return;
+        if (!valid()) return;
         const page = await pdf.getPage(number);
+        if (!valid()) return;
         const viewport = page.getViewport({ scale: width / page.getViewport({ scale: 1 }).width });
         const density = Math.min(devicePixelRatio || 1, 2);
         const canvas = document.createElement('canvas');
@@ -74,8 +89,9 @@ function setupReader(shell: HTMLElement) {
           viewport,
           transform: density !== 1 ? [density, 0, 0, density, 0, 0] : undefined,
         }).promise;
-        if (!node.isConnected || version !== generation) {
+        if (!valid()) {
           canvas.width = 1;
+          canvas.height = 1;
           return;
         }
         const text = document.createElement('div');
@@ -100,10 +116,15 @@ function setupReader(shell: HTMLElement) {
         } catch {
           text.remove();
         }
-        rendered.set(node, number);
+        if (valid()) rendered.set(node, number);
+        else {
+          canvas.width = 1;
+          canvas.height = 1;
+          node.replaceChildren();
+        }
       })
       .catch((e) => {
-        if (version !== generation || !node.isConnected) return;
+        if (!valid()) return;
         console.error('PDF page rendering failed', e);
         node.replaceChildren();
         const retry = document.createElement('button');
@@ -135,14 +156,16 @@ function setupReader(shell: HTMLElement) {
 
   async function showNearby() {
     const version = generation;
+    const request = ++nearbyRequest;
+    const wanted = () => version === generation && request === nearbyRequest;
     const pages = [current, current + 1, current - 1, current + 2, current - 2, current + 3].filter(
       (n) => n >= 1 && n <= pageCount,
     );
     for (const number of pages) {
-      if (version !== generation) return;
-      await renderPage(pageNodes[number - 1], number, 560);
+      if (!wanted()) return;
+      await renderPage(pageNodes[number - 1], number, 560, false, wanted);
     }
-    if (version !== generation) return;
+    if (!wanted()) return;
     discardDistantPages();
   }
 
@@ -200,14 +223,21 @@ function setupReader(shell: HTMLElement) {
         node.style.width = `${pageWidth}px`;
         node.style.height = `${pageWidth / Number(shell.dataset.ratio)}px`;
       }
+      const inView = new Set<Element>();
       observer = new IntersectionObserver(
         (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) inView.add(entry.target);
+            else inView.delete(entry.target);
+          }
           for (const entry of entries)
             if (entry.isIntersecting)
               void renderPage(
                 entry.target as HTMLElement,
                 Number((entry.target as HTMLElement).dataset.page),
                 pageWidth,
+                false,
+                () => inView.has(entry.target),
               );
         },
         { root: mobileQuery.matches ? null : continuous, rootMargin: '800px 0px' },

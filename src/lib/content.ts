@@ -3,6 +3,11 @@ import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
 export { isPoetry } from '../../scripts/text.mjs';
 
+export interface ImageSource {
+  src: string;
+  width: number;
+}
+
 export interface Issue {
   year: string;
   description: string;
@@ -13,6 +18,7 @@ export interface Issue {
   cover: string;
   coverWidth: number;
   coverHeight: number;
+  coverSources: ImageSource[];
   pageCount: number;
   pageRatio: number;
   fileSize: string;
@@ -29,7 +35,14 @@ export interface Work {
   body: string;
   pdfPage: number | null;
   about: string;
-  artworks: { image: string; alt: string; caption: string }[];
+  artworks: {
+    image: string;
+    alt: string;
+    caption: string;
+    width?: number;
+    height?: number;
+    thumbnailSources?: ImageSource[];
+  }[];
   recordings: { file: string; title: string; description: string }[];
   status: string;
 }
@@ -51,6 +64,8 @@ export const { site, issues, works, authors, preview } = content;
 export const currentIssue = issues.find((i) => i.year === site.currentIssue) || issues[0];
 export const url = (p = '/') =>
   `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${p.replace(/^\//, '')}`;
+export const imageSrcset = (sources?: ImageSource[]) =>
+  sources?.map(({ src, width }) => `${url(src)} ${width}w`).join(', ');
 export const issueUrl = (i: Issue | string) =>
   url(`/issues/${typeof i === 'string' ? i : i.year}/`);
 export const readerUrl = (i: Issue | string, page?: number | null) =>

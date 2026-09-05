@@ -1,8 +1,9 @@
 import { mkdir, readFile, writeFile, copyFile, rm, cp, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { createCanvas, DOMMatrix, ImageData, Path2D } from '@napi-rs/canvas';
+import { createCanvas, DOMMatrix, ImageData, Path2D, loadImage } from '@napi-rs/canvas';
 import { loadContent, referencedMedia, mediaPath } from './content.mjs';
+import { imageVariants, coverWidths, thumbnailWidths } from './images.mjs';
 
 globalThis.DOMMatrix ??= DOMMatrix;
 globalThis.ImageData ??= ImageData;
@@ -10,6 +11,14 @@ globalThis.Path2D ??= Path2D;
 const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
 const root = path.resolve(process.env.CONTENT_DIR || 'content');
 const data = await loadContent(root, process.argv.includes('--preview'));
+const coverVersion = createHash('sha256');
+for (const file of [
+  import.meta.url,
+  new URL('./images.mjs', import.meta.url),
+  new URL('../package-lock.json', import.meta.url),
+])
+  coverVersion.update(await readFile(new URL(file)));
+const coverSettings = coverVersion.digest('hex');
 await mkdir('.cache/covers', { recursive: true });
 await rm('public/media', { recursive: true, force: true });
 await rm('public/issues', { recursive: true, force: true });
@@ -29,11 +38,13 @@ for (const url of referencedMedia(data)) {
 
 for (const issue of data.issues) {
   const bytes = await readFile(mediaPath(root, issue.pdf));
-  const hash = createHash('sha256').update(bytes).digest('hex');
+  const hash = createHash('sha256').update(coverSettings).update(bytes).digest('hex');
   const cached = `.cache/covers/${hash}`;
   let meta;
   try {
     meta = JSON.parse(await readFile(`${cached}.json`, 'utf8'));
+    await stat(`${cached}.jpg`);
+    for (const image of meta.sources) await stat(`${cached}-${image.width}.webp`);
   } catch {
     const task = getDocument({
       data: new Uint8Array(bytes),
@@ -48,7 +59,13 @@ for (const issue of data.issues) {
     const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
     await first.render({ canvasContext: canvas.getContext('2d'), viewport, canvas }).promise;
     await writeFile(`${cached}.jpg`, canvas.toBuffer('image/jpeg', 88));
-    meta = { pages: doc.numPages, width: viewport.width, height: viewport.height };
+    const variants = await imageVariants(canvas, cached, coverWidths);
+    meta = {
+      pages: doc.numPages,
+      width: viewport.width,
+      height: viewport.height,
+      sources: variants.map(({ width, height }) => ({ width, height })),
+    };
     await writeFile(`${cached}.json`, JSON.stringify(meta));
     await task.destroy();
   }
@@ -59,9 +76,42 @@ for (const issue of data.issues) {
   issue.coverWidth = Math.ceil(meta.width);
   issue.coverHeight = Math.ceil(meta.height);
   await copyFile(`${cached}.jpg`, `public${issue.cover}`);
+  issue.coverSources = [];
+  for (const image of meta.sources) {
+    const src = `/media/covers/${issue.year}-${image.width}.webp`;
+    await copyFile(`${cached}-${image.width}.webp`, `public${src}`);
+    issue.coverSources.push({ src, width: image.width });
+  }
   for (const section of issue.sections)
     if (section.page > meta.pages)
       throw new Error(`${issue.year}: ${section.title} points past the last PDF page`);
+}
+// Only included works reach this step, so drafts cannot leave display copies behind.
+const thumbnails = new Map();
+for (const work of data.works) {
+  for (const [index, art] of work.artworks.entries()) {
+    // Preserve vector and animated formats without flattening or rasterizing them.
+    if (!/\.(jpe?g|png)$/i.test(art.image)) continue;
+    const image = await loadImage(mediaPath(root, art.image));
+    art.width = image.width;
+    art.height = image.height;
+    if (index !== 0) continue;
+    if (!thumbnails.has(art.image)) {
+      const id = createHash('sha256').update(art.image).digest('hex').slice(0, 16);
+      await mkdir('public/media/thumbnails', { recursive: true });
+      const variants = await imageVariants(
+        image,
+        `public/media/thumbnails/${id}`,
+        thumbnailWidths,
+        true,
+      );
+      thumbnails.set(
+        art.image,
+        variants.map(({ file, width }) => ({ src: `/${file.slice('public/'.length)}`, width })),
+      );
+    }
+    art.thumbnailSources = thumbnails.get(art.image);
+  }
 }
 for (const work of data.works) {
   const issue = data.issues.find((i) => i.year === work.issue);

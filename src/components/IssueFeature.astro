@@ -1,6 +1,6 @@
 ---
 import type { Issue } from '../lib/content';
-import { worksFor, readerUrl, issueUrl, url } from '../lib/content';
+import { worksFor, readerUrl, issueUrl, url, imageSrcset } from '../lib/content';
 import WorkCard from './WorkCard.astro';
 import Icon from './Icon.astro';
 interface Props {
@@ -38,6 +38,8 @@ const selected = featured.length ? featured : allWorks.slice(0, 3);
       ><img
         class="hero-image"
         src={url(issue.cover)}
+        srcset={imageSrcset(issue.coverSources)}
+        sizes="(max-width: 720px) calc(100vw - 2rem), (max-width: 1180px) calc((100vw - 4.9rem) / 1.65), calc((100vw - 9.8rem) * 1.14 / 2.52)"
         alt={`Cover of The Tempest ${issue.year}`}
         style={`view-transition-name: issue-cover-${issue.year}`}
         fetchpriority="high"

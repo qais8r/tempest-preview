@@ -47,7 +47,13 @@ const author = authorFor(work);
           work.artworks.map((art) => (
             <figure class="work-art">
               <>
-                <img src={url(art.image)} alt={art.alt} loading="lazy" />
+                <img
+                  src={url(art.image)}
+                  alt={art.alt}
+                  width={art.width}
+                  height={art.height}
+                  loading="lazy"
+                />
                 <figcaption>{art.caption}</figcaption>
               </>
             </figure>
