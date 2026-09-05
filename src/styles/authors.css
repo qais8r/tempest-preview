@@ -10,7 +10,9 @@
   padding: 0;
 }
 .author-directory-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   text-decoration: none;
 }
 .directory-portrait {
@@ -36,6 +38,7 @@
 }
 .directory-name {
   display: flex;
+  flex: 1;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
@@ -50,6 +53,9 @@
 }
 .directory-name svg {
   flex-shrink: 0;
+}
+.directory-meta {
+  min-height: 0.86rem;
 }
 .author-directory-card:is(:hover, :focus-visible) .directory-name {
   color: var(--red);

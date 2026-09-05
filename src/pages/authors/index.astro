@@ -59,10 +59,10 @@ const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.
                       </h3>
                       <Icon name="arrow" />
                     </div>
-                    <p class="eyebrow muted">
+                    <p class="directory-meta eyebrow muted">
                       {contributions
                         ? `${contributions} ${contributions === 1 ? 'work' : 'works'}`
-                        : 'Author profile'}
+                        : null}
                     </p>
                   </a>
                 </li>
