@@ -802,11 +802,14 @@ button,
 }
 .about-layout figure {
   margin: 0;
+  justify-self: center;
 }
 .about-layout figure img {
-  width: 100%;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 46rem;
-  object-fit: cover;
   filter: grayscale(1);
 }
 .about-layout .button {

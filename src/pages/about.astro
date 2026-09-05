@@ -1,6 +1,6 @@
 ---
 import Site from '../layouts/Site.astro';
-import { site, prose, currentIssue, readerUrl, url } from '../lib/content';
+import { site, prose, currentIssue, readerUrl, url, imageSrcset } from '../lib/content';
 import Icon from '../components/Icon.astro';
 ---
 
@@ -10,7 +10,11 @@ import Icon from '../components/Icon.astro';
       <figure>
         <img
           src={url(currentIssue.cover)}
+          srcset={imageSrcset(currentIssue.coverSources)}
+          sizes="(max-width: 720px) calc(100vw - 2rem), min(42vw, 35.6rem)"
           alt={currentIssue.heroCredit || 'The current issue cover'}
+          width={currentIssue.coverWidth}
+          height={currentIssue.coverHeight}
         /><figcaption>{currentIssue.heroCredit}</figcaption>
       </figure><div>
         <div class="prose" set:html={prose(site.about)} /><p class="eyebrow">{site.school}</p><a

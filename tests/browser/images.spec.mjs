@@ -68,3 +68,23 @@ test('artwork reserves its proportions before the original image loads', async (
     0,
   );
 });
+
+test('the About cover keeps its proportions at wide viewports', async ({ page }) => {
+  await page.setViewportSize({ width: 2560, height: 1440 });
+  await page.goto('about/');
+  const cover = page.locator('.about-layout figure img');
+  await expect
+    .poll(() => cover.evaluate((img) => img.complete && img.naturalWidth > 0))
+    .toBe(true);
+  const size = await cover.evaluate((img) => {
+    const rect = img.getBoundingClientRect();
+    return {
+      width: Number(img.getAttribute('width')),
+      height: Number(img.getAttribute('height')),
+      renderedWidth: rect.width,
+      renderedHeight: rect.height,
+    };
+  });
+  expect(size.renderedWidth / size.renderedHeight).toBeCloseTo(size.width / size.height, 2);
+  expect(size.renderedHeight).toBeLessThanOrEqual(46 * 16 + 1);
+});
