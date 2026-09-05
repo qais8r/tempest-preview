@@ -3,6 +3,7 @@ import { createCanvas } from '@napi-rs/canvas';
 
 export const coverWidths = [320, 640, 1050];
 export const thumbnailWidths = [128, 256, 384];
+export const portraitWidths = [128, 256, 384, 512, 768, 1024, 1280];
 
 // Keep originals intact. Only generated display copies are resized or cropped.
 export async function imageVariants(image, prefix, widths, square = false) {

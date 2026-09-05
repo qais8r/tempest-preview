@@ -4,7 +4,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
-import { imageVariants } from '../scripts/images.mjs';
+import { imageVariants, portraitWidths } from '../scripts/images.mjs';
 
 test('display copies preserve proportions, avoid upscaling, and crop thumbnails centrally', async (t) => {
   const dir = await mkdtemp(path.join(tmpdir(), 'tempest-images-'));
@@ -43,4 +43,17 @@ test('display copies preserve proportions, avoid upscaling, and crop thumbnails 
   const [red, green, blue] = sample.getImageData(5, 25, 1, 1).data;
   assert.ok(blue > 240 && red < 10 && green < 10, 'thumbnail uses the original center crop');
   assert.deepEqual([source.width, source.height], [300, 100]);
+});
+
+test('portrait copies cover small avatars through large profile displays', async (t) => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'tempest-portraits-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const source = createCanvas(1600, 2000);
+  const variants = await imageVariants(source, path.join(dir, 'portrait'), portraitWidths);
+
+  assert.deepEqual(
+    variants.map(({ width, height }) => [width, height]),
+    portraitWidths.map((width) => [width, width * 1.25]),
+  );
+  assert.ok(variants.every(({ file }) => file.endsWith('.webp')));
 });

@@ -1,7 +1,7 @@
 ---
 import Site from '../../layouts/Site.astro';
 import Icon from '../../components/Icon.astro';
-import { authors, works, initials, url } from '../../lib/content';
+import { authors, works, initials, url, imageSrcset } from '../../lib/content';
 import '../../styles/authors.css';
 
 const alphabet = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
@@ -39,7 +39,9 @@ const list = [...authors].sort((a, b) => alphabet.compare(a.name.trim(), b.name.
                     >
                       {author.portrait ? (
                         <img
-                          src={url(author.portrait)}
+                          src={url(author.portraitSources?.[0]?.src || author.portrait)}
+                          srcset={imageSrcset(author.portraitSources)}
+                          sizes="(max-width: 720px) calc((100vw - 3rem) / 2), (max-width: 960px) calc((100vw - 6rem) / 3), (max-width: 1180px) calc((100vw - 7.5rem) / 4), (min-width: 1500px) calc((100vw - 13.5rem) / 6), calc((100vw - 10.5rem) / 4)"
                           alt=""
                           loading="lazy"
                           width="400"

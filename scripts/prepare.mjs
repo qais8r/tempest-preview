@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { createCanvas, DOMMatrix, ImageData, Path2D, loadImage } from '@napi-rs/canvas';
 import { loadContent, referencedMedia, mediaPath } from './content.mjs';
-import { imageVariants, coverWidths, thumbnailWidths } from './images.mjs';
+import { imageVariants, coverWidths, thumbnailWidths, portraitWidths } from './images.mjs';
 
 globalThis.DOMMatrix ??= DOMMatrix;
 globalThis.ImageData ??= ImageData;
@@ -11,6 +11,18 @@ globalThis.Path2D ??= Path2D;
 const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
 const root = path.resolve(process.env.CONTENT_DIR || 'content');
 const data = await loadContent(root, process.argv.includes('--preview'));
+const resizableImage = /\.(jpe?g|png)$/i;
+const portraitMedia = new Set(
+  data.authors.map((author) => author.portrait).filter((url) => resizableImage.test(url)),
+);
+const originalMedia = new Set(
+  data.works.flatMap((work) => [
+    ...work.artworks.map((art) => art.image),
+    ...work.recordings.map((recording) => recording.file),
+  ]),
+);
+const publicSources = (variants) =>
+  variants.map(({ file, width }) => ({ src: `/${file.slice('public/'.length)}`, width }));
 const coverVersion = createHash('sha256');
 for (const file of [
   import.meta.url,
@@ -24,6 +36,7 @@ await rm('public/media', { recursive: true, force: true });
 await rm('public/issues', { recursive: true, force: true });
 await mkdir('public/media/covers', { recursive: true });
 for (const url of referencedMedia(data)) {
+  if (portraitMedia.has(url) && !originalMedia.has(url)) continue;
   const source = mediaPath(root, url);
   const size = (await stat(source)).size;
   if (size > 100 * 1024 * 1024) throw new Error(`${url} exceeds GitHub's 100 MiB file limit`);
@@ -34,6 +47,19 @@ for (const url of referencedMedia(data)) {
   const target = path.join('public', url);
   await mkdir(path.dirname(target), { recursive: true });
   await copyFile(source, target);
+}
+
+const portraits = new Map();
+for (const author of data.authors) {
+  if (!resizableImage.test(author.portrait)) continue;
+  if (!portraits.has(author.portrait)) {
+    const image = await loadImage(mediaPath(root, author.portrait));
+    const id = createHash('sha256').update(author.portrait).digest('hex').slice(0, 16);
+    await mkdir('public/media/portraits', { recursive: true });
+    const variants = await imageVariants(image, `public/media/portraits/${id}`, portraitWidths);
+    portraits.set(author.portrait, publicSources(variants));
+  }
+  author.portraitSources = portraits.get(author.portrait);
 }
 
 for (const issue of data.issues) {
@@ -91,7 +117,7 @@ const thumbnails = new Map();
 for (const work of data.works) {
   for (const [index, art] of work.artworks.entries()) {
     // Preserve vector and animated formats without flattening or rasterizing them.
-    if (!/\.(jpe?g|png)$/i.test(art.image)) continue;
+    if (!resizableImage.test(art.image)) continue;
     const image = await loadImage(mediaPath(root, art.image));
     art.width = image.width;
     art.height = image.height;
@@ -105,10 +131,7 @@ for (const work of data.works) {
         thumbnailWidths,
         true,
       );
-      thumbnails.set(
-        art.image,
-        variants.map(({ file, width }) => ({ src: `/${file.slice('public/'.length)}`, width })),
-      );
+      thumbnails.set(art.image, publicSources(variants));
     }
     art.thumbnailSources = thumbnails.get(art.image);
   }

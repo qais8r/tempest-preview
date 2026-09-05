@@ -1,7 +1,7 @@
 ---
 import Site from '../../layouts/Site.astro';
 import WorkCard from '../../components/WorkCard.astro';
-import { authors, works, prose, initials, url } from '../../lib/content';
+import { authors, works, prose, initials, url, imageSrcset } from '../../lib/content';
 export function getStaticPaths() {
   return authors.map((author) => ({ params: { slug: author.slug }, props: { author } }));
 }
@@ -25,7 +25,12 @@ const list = works.filter((w) => w.author === author.slug);
       >
         {
           author.portrait ? (
-            <img src={url(author.portrait)} alt={author.name} />
+            <img
+              src={url(author.portraitSources?.[0]?.src || author.portrait)}
+              srcset={imageSrcset(author.portraitSources)}
+              sizes="(max-width: 720px) min(22rem, calc(100vw - 2rem)), 32vw"
+              alt={author.name}
+            />
           ) : (
             <span>{initials(author.name)}</span>
           )

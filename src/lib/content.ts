@@ -51,6 +51,7 @@ export interface Author {
   name: string;
   bio: string;
   portrait: string;
+  portraitSources?: ImageSource[];
   status: string;
 }
 export const content = raw as {

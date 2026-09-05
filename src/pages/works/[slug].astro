@@ -10,6 +10,7 @@ import {
   prose,
   initials,
   isPoetry,
+  imageSrcset,
 } from '../../lib/content';
 export function getStaticPaths() {
   return works.map((work) => ({ params: { slug: work.slug }, props: { work } }));
@@ -112,7 +113,9 @@ const author = authorFor(work);
             {
               author.portrait ? (
                 <img
-                  src={url(author.portrait)}
+                  src={url(author.portraitSources?.[0]?.src || author.portrait)}
+                  srcset={imageSrcset(author.portraitSources)}
+                  sizes="3.5rem"
                   alt=""
                   loading="lazy"
                   data-author-transition-author={author.slug}
