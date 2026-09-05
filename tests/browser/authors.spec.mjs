@@ -7,6 +7,14 @@ test('author cards omit redundant metadata and align their bottom rules', async 
   await expect(cards).toHaveCount(3);
   await expect(page.getByText('Author profile', { exact: true })).toHaveCount(0);
   await expect(page.getByText('1 work', { exact: true })).toHaveCount(3);
+  await expect
+    .poll(() =>
+      cards
+        .first()
+        .locator('h3')
+        .evaluate((heading) => getComputedStyle(heading).textWrap),
+    )
+    .toBe('balance');
 
   await cards
     .first()

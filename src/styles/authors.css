@@ -50,6 +50,7 @@
   min-width: 0;
   margin: 0;
   font: 400 clamp(1.6rem, 2.2vw, 2.35rem) / 0.95 var(--serif);
+  text-wrap: balance;
 }
 .directory-name svg {
   flex-shrink: 0;
